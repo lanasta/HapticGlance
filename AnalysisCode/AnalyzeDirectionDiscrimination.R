@@ -303,7 +303,7 @@ boxplot(h3[["n"]], h3[["ne"]], h3[["e"]], h3[["se"]], h3[["s"]], h3[["sw"]], h3[
         ylim = c(-bpYLim, bpYLim)
 )
 
-plot(0, 0, main="Summary", xlim=c(-1,1), ylim=c(-1, 1))
+plot(0, 0, main="Summary", xlim=c(-1.2,1.2), ylim=c(-1.2, 1.2))
 abline(0, 0, col="grey")
 abline(v=0, col="grey")
 blueCol <- rgb(red = 0, green = 0, blue = 1, alpha = 0.4)
