@@ -1,0 +1,16 @@
+﻿<Window x:Class="ForceReader.DirectionDiscrimination"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ForceReader"
+        mc:Ignorable="d"
+        Title="Direction Discrimination Experiment" Height="424.273" Width="602.632" Closing="Window_Closing">
+    <Canvas HorizontalAlignment="Left" Height="385" VerticalAlignment="Top" Width="593">
+        <Button x:Name="startExperiment" Content="Start" Width="76" Canvas.Left="252" Canvas.Top="101" Click="StartExperiment" RenderTransformOrigin="0.789,0.604"/>
+        <TextBlock x:Name="readyTimer"  TextWrapping="Wrap" Text="Please pay attention to the new direction." Canvas.Left="175" Canvas.Top="139" Height="125" Width="243" FontSize="24" Visibility="Hidden" TextAlignment="Center"/>
+        <Image x:Name="northImg" Visibility="Hidden" HorizontalAlignment="Left" VerticalAlignment="Top" Height="183" Width="183" Source="n.png" Grid.Column="1" Grid.ColumnSpan="2" Canvas.Left="204" Canvas.Top="139"/>
+        <Ellipse x:Name="highPointHit" Visibility="Hidden" Fill="#FF509F73" Height="25" Canvas.Left="280" Stroke="Black" Canvas.Top="350" Width="25" RenderTransformOrigin="0.368,-0.336"/>
+        <TextBlock x:Name="expInstructions" TextWrapping="Wrap" Canvas.Left="94" Canvas.Top="33" Text="Please press towards the direction shown below using the thumb on your dominant hand. You may release your thumb when you see the green circle. There will be a break of 2 seconds in between attempts." Height="68" Width="419"/>
+    </Canvas>
+</Window>
