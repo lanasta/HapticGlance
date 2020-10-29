@@ -15,10 +15,10 @@ namespace ForceReader
         int blockNumber = 1;
         int blockLimit = 3;
         int trialNumber = 1;
-        int trialLimit = 10;
+        int trialLimit = 12;
         int currentDirectionIdx = 0;
         int currentMarksIdx = 0;
-        int blockBreakDuration = 1000;
+        int blockBreakDuration = 30000;
         BackgroundWorker worker;
         bool recordingInProgress = false;
         bool experimentInProgress = false;
@@ -29,8 +29,12 @@ namespace ForceReader
         //List<String> directionsToTest = new List<String> { "n", "e" };
 
         int dirCount = 4;
-        List<int> numMarksToTest = new List<int> {1,2,3,4,2,3,4,2,3,4};
-        private static Random rng = new Random(); 
+        List<int> testNumMarks = new List<int> { 4, 2, 3, 1, 3, 1, 2, 4, 1, 2, 3, 4 };
+        int testNumIdx = 0;
+        int sampleClicked = 0;
+        List<int> numMarksToTest = new List<int> { 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4 };
+        private static Random rng = new Random();
+        Regex nonNumerical = new Regex("[^0-9.]");
 
         public HapticMarkExp(String participantId)
         {
@@ -45,8 +49,11 @@ namespace ForceReader
                     (worker_RunWorkerCompleted);
             worker.WorkerReportsProgress = true;
             worker.WorkerSupportsCancellation = true;
-            MainWindow.deactivateFeedback = true;
+            //MainWindow.deactivateFeedback = true;
+            MainWindow.deactivateFeedback = false;
             dirCount = directionsToTest.Length;
+            MainWindow.hapticMarkExpInProgress = true;
+            MainWindow.GenerateHapticMarks(1, testNumMarks[0]);
         }
 
         void worker_doWork(object sender, DoWorkEventArgs e)
@@ -88,7 +95,7 @@ namespace ForceReader
                 numMarksToTest = ShuffleArray(numMarksToTest);
                 currentMarksIdx = 0;
                 currentDirectionIdx = 0;
-                northImg.Source = new BitmapImage(new Uri(@"C:\Users\anastasialalamentik\Downloads\PseudoBend-master\PseudoBend-master\IllusionDriver\ForceReader\" + directionsToTest[currentDirectionIdx] + ".png"));
+                northImg.Source = new BitmapImage(new Uri(@"C:\Users\anastasialalamentik\Desktop\HapticGlance\IllusionDriver\ForceReader\" + directionsToTest[currentDirectionIdx] + ".png"));
                 BlockBreak();
                 if (blockNumber > blockLimit)
                 {
@@ -115,7 +122,7 @@ namespace ForceReader
                     trialNumber = 1;
                     if (currentDirectionIdx < dirCount)
                     {
-                        northImg.Source = new BitmapImage(new Uri(@"C:\Users\anastasialalamentik\Downloads\PseudoBend-master\PseudoBend-master\IllusionDriver\ForceReader\" + directionsToTest[currentDirectionIdx] + ".png"));
+                        northImg.Source = new BitmapImage(new Uri(@"C:\Users\anastasialalamentik\Desktop\HapticGlance\IllusionDriver\ForceReader\" + directionsToTest[currentDirectionIdx] + ".png"));
                     }
                 }
             }
@@ -123,7 +130,7 @@ namespace ForceReader
                 detectRecordingStart();
                 if (recordingInProgress && !answerEntered)
                 {
-                    String fileName = @"C: \Users\anastasialalamentik\Downloads\DataCollection\HapticMarkExp_Participant-"+ participantId + "_Block-"+ blockNumber + "_Trial-" + trialNumber + "-direction_" + directionsToTest[currentDirectionIdx] + string.Format("-{0:yyyy-MM-dd_hh-mm-ss-tt}.csv", DateTime.Now);
+                    String fileName = @"C: \Users\anastasialalamentik\Downloads\DataCollection\HapticMarkExp\HapticMarkExp_Participant-"+ participantId + "_Block-"+ blockNumber + "_Trial-" + trialNumber + "-direction_" + directionsToTest[currentDirectionIdx] + string.Format("-{0:yyyy-MM-dd_hh-mm-ss-tt}.csv", DateTime.Now);
                     MainWindow.setRecordValuesMode(true, fileName);
                     recordingInProgress = true;
                 }
@@ -146,11 +153,12 @@ namespace ForceReader
             experimentInProgress = true;
             northImg.Visibility = Visibility.Visible;
             answerGroup.Visibility = Visibility.Visible;
+            expInstructions.Visibility = Visibility.Visible;
+            getFamiliarInstructions.Visibility = Visibility.Hidden;
             worker.RunWorkerAsync();
             marksFeltAnswerBox.Focus();
-            northImg.Source = new BitmapImage(new Uri(@"C:\Users\anastasialalamentik\Downloads\PseudoBend-master\PseudoBend-master\IllusionDriver\ForceReader\" + directionsToTest[currentDirectionIdx] + ".png"));
+            northImg.Source = new BitmapImage(new Uri(@"C:\Users\anastasialalamentik\Desktop\HapticGlance\IllusionDriver\ForceReader\" + directionsToTest[currentDirectionIdx] + ".png"));
             MainWindow.hapticMarkExpInProgress = true;
-            MainWindow.deactivateFeedback = false;
         }
 
         private async void TrialBreak(bool directionChange) {
@@ -178,6 +186,7 @@ namespace ForceReader
             MainWindow.resp.SetBG();
             experimentInProgress = true;
             marksFeltAnswerBox.Focus();
+            marksFeltAnswerBox.Text = String.Empty;
         }
 
         private void ResetHapticMarks()
@@ -186,7 +195,10 @@ namespace ForceReader
             MainWindow.GenerateHapticMarks(2, 0);
             MainWindow.GenerateHapticMarks(3, 0);
             MainWindow.GenerateHapticMarks(4, 0);
-            MainWindow.GenerateHapticMarks(GetCurrentDirection(), numMarksToTest[currentMarksIdx]);
+            if (currentMarksIdx < numMarksToTest.Count)
+            {
+                MainWindow.GenerateHapticMarks(GetCurrentDirection(), numMarksToTest[currentMarksIdx]);
+            }
         }
 
         private int GetCurrentDirection()
@@ -224,8 +236,9 @@ namespace ForceReader
             northImg.Visibility = Visibility.Hidden;
             readyTimer.Visibility = Visibility.Visible;
             readyTimer.Visibility = Visibility.Visible;
+            marksFeltAnswerBox.Text = String.Empty;
             readyTimer.Text = "30 second break. You will be notified when there are 5 seconds left.";
-            await Task.Delay(blockBreakDuration);
+            await Task.Delay(blockBreakDuration-5000);
             readyTimer.Text = "5...";
             await Task.Delay(1000);
             readyTimer.Text = "4...";
@@ -291,21 +304,15 @@ namespace ForceReader
             }
         }
 
-
-        private void marksFeltAnswerBox_PreviewTextInput_1(object sender, System.Windows.Input.TextCompositionEventArgs e)
-        {
-            Regex regex = new Regex("[^0-9]\n+");
-            e.Handled = regex.IsMatch(e.Text);
-        }
-
-        private void RecordAnswer(object sender, RoutedEventArgs e)
+        //private void RecordAnswer(object sender, RoutedEventArgs e)
+        private void RecordAnswer()
         {
             answerEntered = true;
-            hapticMarksAnswer = marksFeltAnswerBox.Text;
-            Debug.WriteLine("answerYoohoo", hapticMarksAnswer);
+            hapticMarksAnswer = nonNumerical.Replace(marksFeltAnswerBox.Text, "");
             int correctAnswer = numMarksToTest[currentMarksIdx];
+            Debug.WriteLine("User's answer: " +  hapticMarksAnswer + ", correct answer: " + correctAnswer);
             MainWindow.hapticMarkAnswerLine = (correctAnswer.ToString() == hapticMarksAnswer).ToString() + ", " + hapticMarksAnswer + ", " + correctAnswer;
-            marksFeltAnswerBox.Text = "";
+            marksFeltAnswerBox.Text = String.Empty;
             if (recordingInProgress)
             {
                 MainWindow.setRecordValuesMode(false, null);
@@ -313,6 +320,62 @@ namespace ForceReader
             recordingInProgress = false;
             Console.WriteLine("done... ");
             MainWindow.resp.SetBG();
+        }
+
+        private void NewSample_Click(object sender, RoutedEventArgs e)
+        {
+            testNumIdx += 1;
+            testMarkCount.Content = testNumMarks[testNumIdx];
+            MainWindow.GenerateHapticMarks(1, testNumMarks[testNumIdx]);
+            ShowTickMarks(testNumMarks[testNumIdx]);
+            sampleClicked += 1;
+            if (sampleClicked == 9)
+            {
+                startExperiment.Visibility = Visibility.Visible;
+                testMarkCountSelection.Visibility = Visibility.Hidden;
+                testMarkCount.Visibility = Visibility.Hidden;
+                getFamiliarInstructions.Visibility = Visibility.Hidden;
+                expInstructions.Visibility = Visibility.Visible;
+                ResetHapticMarks();
+                MainWindow.hapticMarkExpInProgress = false;
+            }
+        }
+
+        private void ShowTickMarks(int testMarksCount)
+        {
+            firstTick.Visibility = Visibility.Visible;
+            secondTick.Visibility = Visibility.Hidden;
+            thirdTick.Visibility = Visibility.Hidden;
+            fourthTick.Visibility = Visibility.Hidden;
+            if (testMarksCount > 1)
+            {
+                secondTick.Visibility = Visibility.Visible;
+                if (testMarksCount > 2)
+                {
+                    thirdTick.Visibility = Visibility.Visible;
+                    if (testMarksCount > 3)
+                    {
+                        fourthTick.Visibility = Visibility.Visible;
+                    }
+                }
+            }
+
+        }
+
+        private void marksFeltAnswerBox_PreviewTextInput_1(object sender, System.Windows.Input.TextCompositionEventArgs e)
+        {
+            Regex regex = new Regex("[^0-9+]\n+");
+            e.Handled = regex.IsMatch(e.Text);
+        }
+
+
+        private void marksFeltAnswerBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.OemPlus || e.Key == System.Windows.Input.Key.Add)
+            {
+                RecordAnswer();
+                marksFeltAnswerBox.Text = String.Empty;
+            }
         }
     }
 }

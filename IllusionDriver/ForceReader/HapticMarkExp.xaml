@@ -5,19 +5,42 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ForceReader"
         mc:Ignorable="d"
-        Title="Haptic Mark Experiment" Height="424.273" Width="602.632" Closing="Window_Closing">
+        Title="Haptic Mark Experiment" Closing="Window_Closing" HorizontalAlignment="Center" VerticalAlignment="Center">
     <Grid>
-        <Canvas HorizontalAlignment="Left" Height="385" VerticalAlignment="Top" Width="593">
-            <Button x:Name="startExperiment" Content="Start" Width="76" Canvas.Left="253" Canvas.Top="101" Click="StartExperiment" RenderTransformOrigin="0.789,0.604"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="31*"/>
+            <ColumnDefinition Width="9*"/>
+        </Grid.ColumnDefinitions>
+        <Canvas HorizontalAlignment="Center" Width="596" Grid.ColumnSpan="2" Margin="82,0">
+            <Button x:Name="startExperiment" Visibility="Hidden" Content="Start" Width="76" Canvas.Left="254" Canvas.Top="134" Click="StartExperiment" RenderTransformOrigin="0.789,0.604"/>
             <TextBlock x:Name="readyTimer"  TextWrapping="Wrap" Text="Please pay attention to the new direction." Canvas.Left="175" Canvas.Top="139" Height="125" Width="243" FontSize="24" Visibility="Hidden" TextAlignment="Center"/>
             <Image x:Name="northImg" Visibility="Hidden" HorizontalAlignment="Left" VerticalAlignment="Top" Height="183" Width="183" Source="n.png" Grid.Column="1" Grid.ColumnSpan="2" Canvas.Left="204" Canvas.Top="139"/>
-            <TextBlock x:Name="expInstructions" TextWrapping="Wrap" Canvas.Left="100" Canvas.Top="33" Text="Please press towards the direction shown below using the thumb on your dominant hand. Enter the number of haptic marks(vibrations) you felt. There will be a break of 3 seconds after you confirm your answer." Height="68" Width="419"/>
-            <Grid x:Name="answerGroup" Visibility="Hidden" Height="48" Canvas.Left="149" Canvas.Top="327" Width="305">
-                <TextBox x:Name="marksFeltAnswerBox" TextWrapping="Wrap" PreviewTextInput="marksFeltAnswerBox_PreviewTextInput_1" Margin="129,12,119,13" AcceptsReturn="True"/>
-                <Button x:Name="confirmAnswer" Content="Confirm" Click="RecordAnswer" Margin="201,12,29,13"/>
+            <TextBlock x:Name="expInstructions"  Visibility="Hidden" TextWrapping="Wrap" Canvas.Left="100" Canvas.Top="33" Text="Please press towards the direction shown below using the thumb on your dominant hand. Enter the number of haptic marks(vibrations) you felt and press the + button to confirm your answer. There will be a break of 3 seconds after you confirm your answer." Height="68" Width="419"/>
+            <Grid x:Name="answerGroup" Visibility="Hidden" Height="48" Canvas.Left="159" Canvas.Top="327" Width="305">
+                <TextBox x:Name="marksFeltAnswerBox" TextWrapping="Wrap" PreviewTextInput="marksFeltAnswerBox_PreviewTextInput_1" Margin="129,12,119,13" AcceptsReturn="False" KeyDown="marksFeltAnswerBox_KeyDown"/>
                 <Label Content="# Haptic marks felt: " HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,10,0,0"/>
             </Grid>
-
+            <TextBlock x:Name="getFamiliarInstructions" TextWrapping="Wrap" Canvas.Left="88" Canvas.Top="33" Text="This is a chance for you to familiarize yourself with the haptic mark sensations given the various counts. Click the &quot;New Sample&quot; button In the experiment, you will be asked to move your thumb in the same manner as the previous task and feel the haptic marks. You will then be asked to fill in the number of vibrations felt. The Start button will appear after trying sufficient samples." Height="101" Width="419"/>
+            <Grid x:Name="testMarkCountSelection" Height="289" Canvas.Left="83" Canvas.Top="172" Width="424">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="173*"/>
+                    <ColumnDefinition Width="251*"/>
+                </Grid.ColumnDefinitions>
+                <Label Content="Current haptic mark count: " Margin="0,-8,0,67" FontWeight="Bold" Grid.ColumnSpan="2"/>
+                <Image x:Name="testDirImg"  HorizontalAlignment="Left" VerticalAlignment="Top" Height="223" Width="227" Source="w.png" Margin="93,28,0,0" Grid.ColumnSpan="2"/>
+                <Grid Margin="42,51,112,80">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="9*"/>
+                    </Grid.ColumnDefinitions>
+                    <Label x:Name="firstTick" Content="|" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="141,70,-142,0" FontWeight="Bold" FontSize="20" Grid.Column="1"/>
+                    <Label x:Name="secondTick" Content="|" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="124,70,-125,0" FontWeight="Bold" FontSize="20" Grid.Column="1"/>
+                    <Label x:Name="thirdTick" Content="|" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="107,70,-108,0" FontWeight="Bold" FontSize="20" Grid.Column="1"/>
+                    <Label x:Name="fourthTick" Content="|" HorizontalAlignment="Left" VerticalAlignment="Top" FontWeight="Bold" FontSize="20" Grid.Column="1" Margin="90,70,-91,0"/>
+                </Grid>
+                <Button Content="Get new sample" HorizontalAlignment="Left" VerticalAlignment="Top" Width="119" Margin="132,-5,0,0" Grid.Column="1" Click="NewSample_Click"/>
+            </Grid>
+            <Label x:Name="testMarkCount" Content="4" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="240,164,0,0"/>
         </Canvas>
     </Grid>
 

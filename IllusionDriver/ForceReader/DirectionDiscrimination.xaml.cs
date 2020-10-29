@@ -16,7 +16,7 @@ namespace ForceReader
         int trialNumber = 1;
         int trialLimit = 10;
         int currentDirectionIdx = 0;
-        int blockBreakDuration = 1000;
+        int blockBreakDuration = 30000;
         BackgroundWorker worker;
         bool recordingInProgress = false;
         bool experimentInProgress = false;
@@ -35,7 +35,7 @@ namespace ForceReader
             this.participantId = participantId;
             directionsToTest = ShuffleArray(directionsToTest);
             numberOfDirections = directionsToTest.Count;
-            northImg.Source = new BitmapImage(new Uri(@"C:\Users\anastasialalamentik\Downloads\PseudoBend-master\PseudoBend-master\IllusionDriver\ForceReader\" + directionsToTest[currentDirectionIdx] + ".png"));
+            northImg.Source = new BitmapImage(new Uri(@"C:\Users\anastasialalamentik\Desktop\HapticGlance\IllusionDriver\ForceReader\" + directionsToTest[currentDirectionIdx] + ".png"));
             worker = new BackgroundWorker();
             worker.DoWork += new DoWorkEventHandler(worker_doWork);
             worker.ProgressChanged += new ProgressChangedEventHandler
@@ -103,7 +103,7 @@ namespace ForceReader
                 blockNumber += 1;
                 directionsToTest = ShuffleArray(directionsToTest);
                 currentDirectionIdx = 0;
-                northImg.Source = new BitmapImage(new Uri(@"C:\Users\anastasialalamentik\Downloads\PseudoBend-master\PseudoBend-master\IllusionDriver\ForceReader\" + directionsToTest[currentDirectionIdx] + ".png"));
+                northImg.Source = new BitmapImage(new Uri(@"C:\Users\anastasialalamentik\Desktop\HapticGlance\IllusionDriver\ForceReader\" + directionsToTest[currentDirectionIdx] + ".png"));
                 BlockBreak();
                 if (blockNumber > blockLimit)
                 {
@@ -129,7 +129,7 @@ namespace ForceReader
                     trialNumber = 1;
                     if (currentDirectionIdx < numberOfDirections)
                     {
-                        northImg.Source = new BitmapImage(new Uri(@"C:\Users\anastasialalamentik\Downloads\PseudoBend-master\PseudoBend-master\IllusionDriver\ForceReader\" + directionsToTest[currentDirectionIdx] + ".png"));
+                        northImg.Source = new BitmapImage(new Uri(@"C:\Users\anastasialalamentik\Desktop\HapticGlance\IllusionDriver\ForceReader\" + directionsToTest[currentDirectionIdx] + ".png"));
                     }
                 }
                 highValueHit = false;
@@ -139,7 +139,7 @@ namespace ForceReader
                 detectRecordingStart();
                 if (recordingInProgress && (!highValueHit && !lowValueHit))
                 {
-                    String fileName = @"C: \Users\anastasialalamentik\Downloads\DataCollection\DirectionDiscrimination_Participant-"+ participantId + "_Block-"+ blockNumber + "_Trial-" + trialNumber + "-direction_" + directionsToTest[currentDirectionIdx] + string.Format("-{0:yyyy-MM-dd_hh-mm-ss-tt}.csv", DateTime.Now);
+                    String fileName = @"C: \Users\anastasialalamentik\Downloads\DataCollection\DD\DirectionDiscrimination_Participant-"+ participantId + "_Block-"+ blockNumber + "_Trial-" + trialNumber + "-direction_" + directionsToTest[currentDirectionIdx] + string.Format("-{0:yyyy-MM-dd_hh-mm-ss-tt}.csv", DateTime.Now);
                     MainWindow.setRecordValuesMode(true, fileName);
                     recordingInProgress = true;
                 }
@@ -257,7 +257,7 @@ namespace ForceReader
             readyTimer.Visibility = Visibility.Visible;
             readyTimer.Visibility = Visibility.Visible;     
             readyTimer.Text = "30 second break. You will be notified when there are 5 seconds left.";
-            await Task.Delay(blockBreakDuration);
+            await Task.Delay(blockBreakDuration - 5000);
             readyTimer.Text = "5...";
             await Task.Delay(1000);
             readyTimer.Text = "4...";
