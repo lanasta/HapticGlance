@@ -62,7 +62,7 @@ void loop()
   {
     if (usec > sampleInt)
     {
-      analogWrite(A21, (int)(samples[phase] * gain *0.5 + offset));
+      analogWrite(A21, (int)(samples[phase] * gain *0.25 + offset));
       usec = 0;
       if (phase < 180)
       {
@@ -89,16 +89,8 @@ void loop()
         case 1:
           analogWrite(A21, (int)(-1 * gain + offset));
           BO_phase = 2;
-        break;
+        break;     
         case 2:
-          analogWrite(A21, (int)(1 * gain + offset));
-          BO_phase = 3;
-        break;
-        case 3:
-          analogWrite(A21, (int)(-1 * gain + offset));
-          BO_phase = 4;
-        break;        
-        case 4:
           analogWrite(A21, (int)(offset));
           BO_phase = 0;
           playBO = false;

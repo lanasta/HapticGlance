@@ -15,7 +15,7 @@ namespace ForceReader
         int blockNumber = 1;
         int blockLimit = 3;
         int trialNumber = 1;
-        int trialLimit = 12;
+        int trialLimit = 3;
         int currentDirectionIdx = 0;
         int currentMarksIdx = 0;
         int blockBreakDuration = 30000;
@@ -53,6 +53,8 @@ namespace ForceReader
             MainWindow.deactivateFeedback = false;
             dirCount = directionsToTest.Length;
             MainWindow.hapticMarkExpInProgress = true;
+            MainWindow.patternMode = 1;
+            ResetHapticMarks();
             MainWindow.GenerateHapticMarks(1, testNumMarks[0]);
         }
 
@@ -141,6 +143,7 @@ namespace ForceReader
         {
             startExperiment.Visibility = Visibility.Hidden;
             readyTimer.Visibility = Visibility.Visible;
+            MainWindow.deactivateFeedback = false;
             Debug.WriteLine("start exp this many marks" + " " + GetCurrentDirection() + " " + numMarksToTest[currentMarksIdx]);
             ResetHapticMarks();
             readyTimer.Text = "3...";
@@ -338,6 +341,7 @@ namespace ForceReader
                 expInstructions.Visibility = Visibility.Visible;
                 ResetHapticMarks();
                 MainWindow.hapticMarkExpInProgress = false;
+                MainWindow.deactivateFeedback = true;
             }
         }
 

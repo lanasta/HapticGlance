@@ -63,7 +63,7 @@ namespace ForceReader
         int[] encodingCounts = { 3, 3, 3, 3 }; //left, up, right, down
 
         /* 0 - normal grain, 1 - bottom out, 2 - buzzing*/
-        int patternMode = 1;
+        public static int patternMode = 0;
 
         public static void setRecordValuesMode(bool recording, string fileName) {
             if (recording) {
@@ -375,16 +375,17 @@ namespace ForceReader
                         //isOutofBound = deactivateFeedback ? false : forceIsOutOfBounds();
                         double mag = Math.Sqrt(force.fx * force.fx + force.fy * force.fy);
 
-                        if (!hapticMarkExpInProgress)
-                        {
+                        PlayGrain();
+                        //if (!hapticMarkExpInProgress)
+                        //{
+                          //  PlayGrain();
                             if (mag <= 0.4) //!isOutofBound
                             {
-                                PlayGrain();
+                                //PlayGrain();
                             }  else {
-                                PlayBottomOut();
-                                Debug.WriteLine("dist bendthresh");
+                                //PlayBottomOut();
                             }
-                        }
+                        //}
                         
                         lastBend = new Point(bend.X, bend.Y);
                         prevHapticForce.fx = hapticForce.fx;
@@ -393,7 +394,7 @@ namespace ForceReader
                 }
                 else
                 {
-                    if (!bendBottomOut)
+                    if (!bendBottomOut && !hapticMarkExpInProgress)
                     {
                         bendBottomOut = true;
                         Debug.WriteLine("bendbottomout");
@@ -524,6 +525,7 @@ namespace ForceReader
         {
             if (doPlay || (!deactivateFeedback && hapticMarkExpInProgress))
                actuator.Write("a");
+            Debug.WriteLine("a played");
         }
 
         Point lastBend;

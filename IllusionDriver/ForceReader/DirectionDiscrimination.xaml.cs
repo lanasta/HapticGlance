@@ -14,7 +14,7 @@ namespace ForceReader
         int blockNumber = 1;
         int blockLimit = 3;
         int trialNumber = 1;
-        int trialLimit = 10;
+        int trialLimit = 3;
         int currentDirectionIdx = 0;
         int blockBreakDuration = 30000;
         BackgroundWorker worker;
@@ -162,7 +162,7 @@ namespace ForceReader
         }
 
         void manageStateChanges(double force) {
-            if (highValueHit && Math.Abs(force) < 0.02)
+            if (highValueHit && Math.Abs(force) < 0.05)
             {
                 lowValueHit = true;
                 if (recordingInProgress) {
@@ -188,14 +188,15 @@ namespace ForceReader
 
         double getDirectionalThreshold()
         {
-            String currentDirection = directionsToTest[currentDirectionIdx];
-            if (currentDirection.Equals("ne") || currentDirection.Equals("sw") || currentDirection.Equals("s") || currentDirection.Equals("e") || currentDirection.Equals("w"))
-            {
-                return 0.3;
-            } else
-            {
-                return 0.45;
-            }
+            //String currentDirection = directionsToTest[currentDirectionIdx];
+            //if (currentDirection.Equals("ne") || currentDirection.Equals("sw") || currentDirection.Equals("s") || currentDirection.Equals("e") || currentDirection.Equals("w"))
+            //{
+            //    return 0.3;
+            //} else
+            //{
+            //    return 0.45;
+            //}
+            return 0.35;
         }
 
 
@@ -226,6 +227,7 @@ namespace ForceReader
             MainWindow.deactivateFeedback = true;
             northImg.Visibility = Visibility.Visible;
             worker.RunWorkerAsync();
+            Console.Write("currently testing " + directionsToTest[currentDirectionIdx]);
         }
 
         private async void TrialBreak(bool directionChange) {
@@ -237,6 +239,7 @@ namespace ForceReader
             if (directionChange && currentDirectionIdx != numberOfDirections - 1)
             {
                 readyTimer.Text = "Please pay attention to the new direction.";
+                Console.Write("currently testing "+ directionsToTest[currentDirectionIdx]);
                 await Task.Delay(3000);
             }
             readyTimer.Text = "2...";
