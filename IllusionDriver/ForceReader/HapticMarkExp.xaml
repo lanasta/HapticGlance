@@ -20,7 +20,7 @@
                 <TextBox x:Name="marksFeltAnswerBox" TextWrapping="Wrap" PreviewTextInput="marksFeltAnswerBox_PreviewTextInput_1" Margin="129,12,119,13" AcceptsReturn="False" KeyDown="marksFeltAnswerBox_KeyDown"/>
                 <Label Content="# Haptic marks felt: " HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,10,0,0"/>
             </Grid>
-            <TextBlock x:Name="getFamiliarInstructions" TextWrapping="Wrap" Canvas.Left="88" Canvas.Top="33" Text="This is a chance for you to familiarize yourself with the haptic mark sensations given the various counts. Click the &quot;New Sample&quot; button In the experiment, you will be asked to move your thumb in the same manner as the previous task and feel the haptic marks. You will then be asked to fill in the number of vibrations felt. The Start button will appear after trying sufficient samples." Height="101" Width="419"/>
+            <TextBlock x:Name="getFamiliarInstructions" TextWrapping="Wrap" Canvas.Left="88" Canvas.Top="33" Text="Familiarize yourself with the haptic mark sensations given the various counts. Adjust your movement speed or grip until you are able to clearly feel the exact count of vibrations highlighted each sample. Click the &quot;New Sample&quot; button In the experiment to try other haptic mark counts. The Start button will appear after trying sufficient samples." Height="101" Width="419"/>
             <Grid x:Name="testMarkCountSelection" Height="289" Canvas.Left="83" Canvas.Top="172" Width="424">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="173*"/>

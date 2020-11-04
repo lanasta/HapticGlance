@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,7 +16,7 @@ namespace ForceReader
         int blockNumber = 1;
         int blockLimit = 3;
         int trialNumber = 1;
-        int trialLimit = 3;
+        int trialLimit = 10;
         int currentDirectionIdx = 0;
         int currentMarksIdx = 0;
         int blockBreakDuration = 30000;
@@ -23,10 +24,15 @@ namespace ForceReader
         bool recordingInProgress = false;
         bool experimentInProgress = false;
         bool answerEntered = false;
+
+        int attemptsPerTrialLimit = 5;
+        int timesHighestMarkHit = 0;
         String participantId = "";
         String hapticMarksAnswer = "";
-        static string[] directionsToTest = { "s", "w", "e", "n" };
+        static string[] directionsToTest = { "n", "w", "e", "s" };
         //List<String> directionsToTest = new List<String> { "n", "e" };
+
+        bool highHit = false;
 
         int dirCount = 4;
         List<int> testNumMarks = new List<int> { 4, 2, 3, 1, 3, 1, 2, 4, 1, 2, 3, 4 };
@@ -98,7 +104,6 @@ namespace ForceReader
                 currentMarksIdx = 0;
                 currentDirectionIdx = 0;
                 northImg.Source = new BitmapImage(new Uri(@"C:\Users\anastasialalamentik\Desktop\HapticGlance\IllusionDriver\ForceReader\" + directionsToTest[currentDirectionIdx] + ".png"));
-                BlockBreak();
                 if (blockNumber > blockLimit)
                 {
                     MainWindow.deactivateFeedback = true;
@@ -112,6 +117,7 @@ namespace ForceReader
                     worker.CancelAsync();
                     return;
                 }
+                BlockBreak();
             }
             if (answerEntered && currentDirectionIdx < dirCount)
             {
@@ -136,6 +142,7 @@ namespace ForceReader
                     MainWindow.setRecordValuesMode(true, fileName);
                     recordingInProgress = true;
                 }
+                trackHighestThresholdHit();
             }
         }
 
@@ -145,7 +152,6 @@ namespace ForceReader
             readyTimer.Visibility = Visibility.Visible;
             MainWindow.deactivateFeedback = false;
             Debug.WriteLine("start exp this many marks" + " " + GetCurrentDirection() + " " + numMarksToTest[currentMarksIdx]);
-            ResetHapticMarks();
             readyTimer.Text = "3...";
             await Task.Delay(1000);
             readyTimer.Text = "3...2...";
@@ -162,6 +168,7 @@ namespace ForceReader
             marksFeltAnswerBox.Focus();
             northImg.Source = new BitmapImage(new Uri(@"C:\Users\anastasialalamentik\Desktop\HapticGlance\IllusionDriver\ForceReader\" + directionsToTest[currentDirectionIdx] + ".png"));
             MainWindow.hapticMarkExpInProgress = true;
+            ResetHapticMarks();
         }
 
         private async void TrialBreak(bool directionChange) {
@@ -190,6 +197,8 @@ namespace ForceReader
             experimentInProgress = true;
             marksFeltAnswerBox.Focus();
             marksFeltAnswerBox.Text = String.Empty;
+            MainWindow.deactivateFeedback = false;
+            timesHighestMarkHit = 0;
         }
 
         private void ResetHapticMarks()
@@ -258,6 +267,8 @@ namespace ForceReader
             MainWindow.resp.SetBG();
             marksFeltAnswerBox.Focus();
             experimentInProgress = true;
+            MainWindow.deactivateFeedback = false;
+            timesHighestMarkHit = 0;
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -265,6 +276,79 @@ namespace ForceReader
             e.Cancel = true;
             this.Hide();
         }
+
+        void trackHighestThresholdHit()
+        {
+            String currentDirection = directionsToTest[currentDirectionIdx];
+            if (currentDirection == "w" && timesHighestMarkHit < attemptsPerTrialLimit)
+            {
+                if (MainWindow.force.fx < -2)
+                {
+                    highHit = true;
+                }
+                if (highHit && MainWindow.force.fx > -0.05)
+                {
+                    timesHighestMarkHit += 1;
+                    highHit = false;
+                }
+            }
+            if (currentDirection == "e" && timesHighestMarkHit < attemptsPerTrialLimit)
+            {
+                if (MainWindow.force.fx > 2)
+                {
+                    highHit = true;
+                }
+                if (highHit && MainWindow.force.fx < 0.05)
+                {
+                    timesHighestMarkHit += 1;
+                    highHit = false;
+                }
+            }
+            if (currentDirection == "s" && timesHighestMarkHit < attemptsPerTrialLimit)
+            {
+                if (MainWindow.force.fy < -2)
+                {
+                    highHit = true;
+                }
+                if (highHit && MainWindow.force.fy > -0.05)
+                {
+                    timesHighestMarkHit += 1;
+                    highHit = false;
+                }
+            }
+            if (currentDirection == "n" && timesHighestMarkHit < attemptsPerTrialLimit)
+            {
+                if (MainWindow.force.fy > 2)
+                {
+                    highHit = true;
+                }
+                if (highHit && MainWindow.force.fy < 0.05)
+                {
+                    timesHighestMarkHit += 1;
+                    highHit = false;
+                }
+            }
+            if (timesHighestMarkHit >= attemptsPerTrialLimit)
+            {
+                MainWindow.deactivateFeedback = true;
+                Debug.WriteLine("zonk");
+            }
+
+            //if (currentDirection == "s" || currentDirection == "n")
+            //{
+            //    if (Math.Abs(MainWindow.force.fy) > 2)
+            //    {
+            //        timesHighestMarkHit += 1;
+            //    }
+            //}
+            //else if (currentDirection == "w" || currentDirection == "e")
+            //{
+            //    if (Math.Abs(MainWindow.force.fx) > 2)
+            //    {
+            //        timesHighestMarkHit += 1;
+            //    }
+            //}
+        } 
 
         void detectRecordingStart()
         {
@@ -375,10 +459,14 @@ namespace ForceReader
 
         private void marksFeltAnswerBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
+            Regex regex = new Regex("[^0-9]\n");
             if (e.Key == System.Windows.Input.Key.OemPlus || e.Key == System.Windows.Input.Key.Add)
             {
-                RecordAnswer();
-                marksFeltAnswerBox.Text = String.Empty;
+                if (marksFeltAnswerBox.Text.Any(char.IsDigit))
+                {
+                    RecordAnswer();
+                    marksFeltAnswerBox.Text = String.Empty;
+                }
             }
         }
     }

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ForceReader"
         mc:Ignorable="d"
-        Title="Illusion Driver" Height="570.8" Width="629" Loaded="Window_Loaded">
+        Title="Illusion Driver" Height="570.8" Width="629" Loaded="Window_Loaded" HorizontalAlignment="Center" VerticalAlignment="Center">
     <Grid Margin="0,0,3.4,3">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="0*"/>
@@ -24,15 +24,16 @@
                 <Label Content="Fx" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="25" Canvas.Top="60"/>
                 <Label Content="Fy" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="105" Canvas.Top="60"/>
                 <Label Content="Fz" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="185" Canvas.Top="60"/>
-                <Label x:Name="fpsBox" Content="0" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="-42" Canvas.Top="-18"/>
-                <Label Content="FPS:" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="-79" Canvas.Top="-18"/>
+                <Label x:Name="fpsBox" Content="0" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="192" Canvas.Top="-22"/>
+                <Label Content="FPS:" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="160" Canvas.Top="-22"/>
             </Canvas>
         </GroupBox>
         <GroupBox Header="Actuator" Height="70" HorizontalAlignment="Left"  Margin="102.8,125,0,0" VerticalAlignment="Top" Grid.Column="2" Width="295">
             <Canvas Margin="0,0,-1.8,0">
                 <Label Content="Serial Port" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="10" Canvas.Top="13"/>
                 <TextBox x:Name="portBox" HorizontalAlignment="Left" Height="24" TextWrapping="Wrap" Text="COM3" MaxLines="100" VerticalAlignment="Top" Width="77" Canvas.Left="79" Canvas.Top="14"/>
-                <Button x:Name="serialButton"  Content="Open" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Click="serialBtn_Click" Canvas.Left="176" Canvas.Top="16"/>
+                <Button x:Name="serialButton"  Content="Open" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Click="serialBtn_Click" Canvas.Left="176"/>
+                <Button Content="Bottom Out" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Grid.Column="2" Click="bottomOutBtn_Click"  Canvas.Left="176" Canvas.Top="24" RenderTransformOrigin="0.533,0"/>
             </Canvas>
         </GroupBox>
         <GroupBox Header="Feedback" HorizontalAlignment="Left" Height="91" Margin="102.8,200,0,0" VerticalAlignment="Top" Width="296" Grid.Column="2">
@@ -66,10 +67,10 @@
                 <Slider x:Name="rightEncodingSlider" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Top" Width="159" ValueChanged="rightEncodingCount_ValueChanged" Maximum="5" SmallChange="1" Height="18" Canvas.Left="116" Value="3" Canvas.Top="60"/>
                 <Label x:Name="downEncodingCount" Content="0" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="3.538,0.586" Height="25" Width="16" Canvas.Left="100" Canvas.Top="78"/>
                 <Slider x:Name="downEncodingSlider" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Top" Width="159" ValueChanged="downEncodingCount_ValueChanged" Maximum="5" SmallChange="1" Height="18" Canvas.Left="116" Value="3" Canvas.Top="84"/>
+                <Button Content="Launch Experiment" Canvas.Left="83" Canvas.Top="128" Width="112" Click="Button_Click_2"/>
             </Canvas>
         </GroupBox>
         <Canvas Margin="0,0,158.2,5" Grid.ColumnSpan="2">
-            <Button Content="Launch Experiment" Canvas.Left="387" Canvas.Top="498" Width="112" Click="Button_Click_2"/>
         </Canvas>
         <Canvas x:Name="forceCanvas" Margin="39,10,0,0" Width="200" Height="250" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Column="1" Grid.ColumnSpan="2">
             <Label Content="Force Vector" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" FontWeight="Bold" Width="96"/>

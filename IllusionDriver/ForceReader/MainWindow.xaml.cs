@@ -397,7 +397,6 @@ namespace ForceReader
                     if (!bendBottomOut && !hapticMarkExpInProgress)
                     {
                         bendBottomOut = true;
-                        Debug.WriteLine("bendbottomout");
                         PlayBottomOut();
                     }
                 }
@@ -491,6 +490,11 @@ namespace ForceReader
             }
         }
 
+        private void bottomOutBtn_Click(object sender, RoutedEventArgs e)
+        {
+            PlayBottomOut();
+        }
+
         private bool forceIsOutOfBounds()
         {
             //check if currently out of bounds, if it is, then use a different threshold (-0.05)
@@ -525,8 +529,7 @@ namespace ForceReader
         {
             if (doPlay || (!deactivateFeedback && hapticMarkExpInProgress))
                actuator.Write("a");
-            Debug.WriteLine("a played");
-        }
+         }
 
         Point lastBend;
         double bendThresh = 0.1;
@@ -745,22 +748,25 @@ namespace ForceReader
             if (!MainWindow.deactivateFeedback && Math.Sqrt(fx * fx + fy * fy) > dirThresh)
             {
                 isRoaming = false;
-                if (!dirSet)
+                if (MainWindow.hapticMarkExpInProgress)
                 {
-                    if (Math.Abs(fx) - Math.Abs(fy) > 0)
+                    if (!dirSet)
                     {
-                        isDirSetX = true;
+                        if (Math.Abs(fx) - Math.Abs(fy) > 0)
+                        {
+                            isDirSetX = true;
+                        }
+                        else
+                        {
+                            isDirSetX = false;
+                        }
+                        dirSet = true;
                     }
+                    if (isDirSetX)
+                        fy = 0;
                     else
-                    {
-                        isDirSetX = false;
-                    }
-                    dirSet = true;
+                        fx = 0;
                 }
-                if (isDirSetX)
-                    fy = 0;
-                else
-                    fx = 0;
             }
             else
             {

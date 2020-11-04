@@ -14,7 +14,7 @@ namespace ForceReader
         int blockNumber = 1;
         int blockLimit = 3;
         int trialNumber = 1;
-        int trialLimit = 3;
+        int trialLimit = 10;
         int currentDirectionIdx = 0;
         int blockBreakDuration = 30000;
         BackgroundWorker worker;
@@ -104,7 +104,6 @@ namespace ForceReader
                 directionsToTest = ShuffleArray(directionsToTest);
                 currentDirectionIdx = 0;
                 northImg.Source = new BitmapImage(new Uri(@"C:\Users\anastasialalamentik\Desktop\HapticGlance\IllusionDriver\ForceReader\" + directionsToTest[currentDirectionIdx] + ".png"));
-                BlockBreak();
                 if (blockNumber > blockLimit)
                 {
                     MainWindow.deactivateFeedback = true;
@@ -116,8 +115,9 @@ namespace ForceReader
                     readyTimer.Visibility = Visibility.Hidden;
                     highPointHit.Visibility = Visibility.Hidden;
                     worker.CancelAsync();
+                    return;
                 }
-                return;
+                BlockBreak();
             }
             if (highValueHit && lowValueHit && currentDirectionIdx < numberOfDirections)
             {
@@ -196,7 +196,7 @@ namespace ForceReader
             //{
             //    return 0.45;
             //}
-            return 0.35;
+            return 1;
         }
 
 
