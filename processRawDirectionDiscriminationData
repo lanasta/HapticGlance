@@ -1,6 +1,6 @@
 /*This script is to extract a single wave/attempt from a direction discrimination trial. Have this file
 in the same folder level as the raw files to be processed, and craate a folder named "cleaned". All 
-the processed data will be in the cleaned folder.*/
+the processed data will be in the cleaned folder. Use "node processRawDirectionDiscriminationData.js" to run, must have node installed first.*/
  
 const fs = require('fs')
 
