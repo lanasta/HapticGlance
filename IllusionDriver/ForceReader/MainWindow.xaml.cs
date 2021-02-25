@@ -29,14 +29,20 @@ namespace ForceReader
         public static HashSet<ExpData> valuesToWrite = new HashSet<ExpData>();
         public static bool deactivateFeedback = false;
         public static bool hapticMarkExpInProgress = false;
+        public static bool JNDExpInProgress = false;
         public static String hapticMarkAnswerLine = "";
+        public static String jndAnswerLine = "";
         public static double expBeginningMs = (DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds;
+        public static double acceptableSpeedHigh = 3.01;
+        public static double acceptableSpeedLow = 1.49;
 
         static string ipAddr = "192.168.1.1";
         static int port = 49152;
         public static Response resp;
         public static Force force;
         public static bool fileWritingInProgress = false;
+        public static bool hapticMarkOutOfBounds = false;
+        public static bool noHapticMarks = false;
         Force hapticForce;
         Force prevHapticForce;
 
@@ -58,12 +64,21 @@ namespace ForceReader
         bool itemsInSchedule = true;
         bool newEmails = true; 
         bool missedCallsExist = true; 
-        bool currentlyOutOfBounds = false;
 
         int[] encodingCounts = { 3, 3, 3, 3 }; //left, up, right, down
+        public static double[] hapticMarkVar1 = { 0.4, 0.8, 1.2, 1.6};
+        static double[] hapticMarkVar2 = { 0.55, 1.10, 1.65, 2.2 }; //best so far
+        static double[] hapticMarkVar3 = { 0.45, 0.9, 1.35, 1.8 };
+        static double[] hapticMarkVar4 = { 0.6, 1.2, 1.8, 2.4 };
+        static double[] baseHapticMarkVar = hapticMarkVar1;
 
         /* 0 - normal grain, 1 - bottom out, 2 - buzzing*/
         public static int patternMode = 0;
+
+        public static double movementStartMs, movementTimeTaken;
+        public static bool movementInProgress, movementHitThreshold;
+        public static double currentSpeed, speedToOneNewton, currentMagnitude ;
+        public static double guideBarWidth = 0;
 
         public static void setRecordValuesMode(bool recording, string fileName) {
             if (recording) {
@@ -77,14 +92,24 @@ namespace ForceReader
             }
         }
 
+        public static bool checkIfSpeedAcceptable()
+        {
+           return speedToOneNewton >= acceptableSpeedLow && speedToOneNewton <= acceptableSpeedHigh;
+        }
+
         public static void saveDataToFileAndClearList() {
             Debug.WriteLine(currentFilePath);
             using (TextWriter tw = new StreamWriter(currentFilePath))
             {
                 if (hapticMarkAnswerLine != "")
                 {
-                    tw.WriteLine(string.Format("Correct, User Answer, Correct Answer"));
+                    tw.WriteLine(string.Format("Correct, UserAnswer, CorrectAnswer, GapVariation"));
                     tw.WriteLine(hapticMarkAnswerLine);
+                }
+                else if (jndAnswerLine != "")
+                {
+                    tw.WriteLine(string.Format("TwoMarksFelt, NumReversals, HapticMarkDistance, Mark1Position, Mark2Position, CurrentInterval"));
+                    tw.WriteLine(jndAnswerLine);
                 }
                 tw.WriteLine(string.Format( "Timestamp, Fx, Fy, Fz, Magnitude"));
                 foreach (var data in valuesToWrite)
@@ -104,6 +129,7 @@ namespace ForceReader
             force = new Force(false);
             hapticForce = new Force(false);
             prevHapticForce = new Force(false);
+            movementInProgress = false;
 
             worker = new BackgroundWorker();
             worker.DoWork += new DoWorkEventHandler(worker_doWork);
@@ -231,6 +257,27 @@ namespace ForceReader
             f1.Text = force.fx.ToString("0.00");
             f2.Text = force.fy.ToString("0.00");
             f3.Text = force.fz.ToString("0.00");
+            magnitudeMovement.Content = currentMagnitude.ToString("0.00");
+            movementSpeedToReach1N.Content = speedToOneNewton.ToString("0.00");
+            guideBarWidth = guideBarWidth + (200 / (1000 / 16));
+            magnitudeGuideBar.Width = guideBarWidth;
+            magnitudeMovementGuideValue.Content = (guideBarWidth/200 * 2.5).ToString("0.00");
+            actualMagnitudeBar.Width = currentMagnitude / 2.5 * 200;
+            if (magnitudeGuideBar.Width > 199)
+            {
+                guideBarWidth = 0;
+            }
+            // speedBar.Width = currentSpeed/5*200;
+            if (!checkIfSpeedAcceptable())
+            {
+                movementIndicator.Content = speedToOneNewton >= 3 ? "Too fast" : speedToOneNewton >= 1 ? "Too slow": "";
+                movementIndicator.Foreground = Brushes.Red;
+            }
+            else
+            {
+                movementIndicator.Content = "OK";
+                movementIndicator.Foreground = Brushes.Green;
+            }
 
             // Update cursors
             double forceScale = forcePanel.Width / 5;
@@ -253,6 +300,11 @@ namespace ForceReader
             roamArea.Height = force.dirThresh * forceScale * 2;
             roamArea.Margin = new Thickness(forcePanel.Width / 2 - roamArea.Width / 2,
                                             forcePanel.Margin.Top + forcePanel.Height / 2 - roamArea.Height / 2, 0, 0);
+
+            roamArea_Copy.Width = 1 * forceScale * 2;
+            roamArea_Copy.Height = 1 * forceScale * 2;
+            roamArea_Copy.Margin = new Thickness(forcePanel.Width / 2 - roamArea_Copy.Width / 2,
+                                            forcePanel.Height / 2 - roamArea_Copy.Height / 2, 0, 0);
 
             //debugBox.Text = debugMsg;
         }
@@ -497,6 +549,10 @@ namespace ForceReader
 
         private bool forceIsOutOfBounds()
         {
+            if (Math.Abs(force.fx) > 2 || Math.Abs(force.fy) > 2)
+            {
+                return true;
+            }
             //check if currently out of bounds, if it is, then use a different threshold (-0.05)
             if (leftMarks.Count > 0 && force.fx < leftMarks[leftMarks.Count - 1])
             {
@@ -522,13 +578,16 @@ namespace ForceReader
              if (deactivateFeedback) return;
             actuator.Write("b");
             debugMsg += "B";
-            Debug.WriteLine("b played");
+           // Debug.WriteLine("b played");
         }
 
         private void PlayGrain()
         {
-            if (doPlay || (!deactivateFeedback && hapticMarkExpInProgress))
-               actuator.Write("a");
+            if (!forceIsOutOfBounds() && !hapticMarkOutOfBounds && !noHapticMarks)
+            {
+                if (doPlay || (!deactivateFeedback && (JNDExpInProgress || hapticMarkExpInProgress)))
+                    actuator.Write("a");
+            }
          }
 
         Point lastBend;
@@ -676,14 +735,11 @@ namespace ForceReader
 
         public static void GenerateHapticMarks(int direction, int count)
         {
-            double[] baseHapticMarks = { 0.5, 1, 1.5 };
-            double[] higherCountMarks = { 0.4, 0.8, 1.2, 1.6, 2.0 };
-            double[] biggerGapMarks = { 0.4, 1, 1.6, 2.2, 2.8 };
-
+            noHapticMarks = count == 0  && !JNDExpInProgress ? true : false;
             List<Double> hapticMarks = new List<double>();
             for (int i = 0; i < count; i ++)
             {
-                double hapticMark = higherCountMarks[i];
+                double hapticMark = MainWindow.baseHapticMarkVar[i];
                 hapticMarks.Add(direction == 1 || direction == 4 ? 0 - hapticMark : hapticMark);
 
                 //double hapticMark = count < 4 ? baseHapticMarks[i] : higherCountMarks[i];
@@ -700,9 +756,47 @@ namespace ForceReader
             {
                 rightMarks = new List<Double>(hapticMarks);
             } else
+            { 
+                downMarks = new List<Double>(hapticMarks);
+            }
+        }
+
+        public static void GenerateTwoHapticMarks(int direction, double distance, bool deactivateMarks)
+        {
+            List<Double> hapticMarks = new List<double>();
+            double firstHapticMark = 0.5;
+            double secondHapticMark = firstHapticMark + distance;
+            if (!deactivateMarks)
+            {
+                hapticMarks.Add(direction == 1 || direction == 4 ? 0 - firstHapticMark : firstHapticMark);
+                hapticMarks.Add(direction == 1 || direction == 4 ? 0 - secondHapticMark : secondHapticMark);
+                noHapticMarks = false;
+            } else
+            {
+                noHapticMarks = true;
+            }
+            if (direction == 1)
+            {
+                leftMarks = new List<Double>(hapticMarks);
+            }
+            else if (direction == 2)
+            {
+                upMarks = new List<Double>(hapticMarks);
+            }
+            else if (direction == 3)
+            {
+                rightMarks = new List<Double>(hapticMarks);
+            }
+            else
             {
                 downMarks = new List<Double>(hapticMarks);
             }
+        }
+
+
+        public static void ChangeGapVariation(int variation)
+        {
+            MainWindow.baseHapticMarkVar = variation == 1 ? MainWindow.hapticMarkVar1 : variation == 2 ? MainWindow.hapticMarkVar2 : variation == 3 ? MainWindow.hapticMarkVar3 : MainWindow.hapticMarkVar4;
         }
     }
 
@@ -773,8 +867,46 @@ namespace ForceReader
                 isRoaming = true;
                 dirSet = false;
             }
-            if (!MainWindow.recordValues || !doLog) return;
             double magnitude = Math.Sqrt(fx * fx + fy * fy);
+            MainWindow.currentMagnitude = magnitude;
+            if (magnitude > 0.15 && !MainWindow.movementInProgress)
+            {
+                MainWindow.movementStartMs = (DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds;
+                MainWindow.movementInProgress = true;
+            }
+
+            if (MainWindow.movementInProgress)
+            {
+                if (magnitude > 0.15)
+                {
+                    double endTime = (DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds;
+                    MainWindow.movementTimeTaken = (endTime - MainWindow.movementStartMs) / 1000;
+                    if (MainWindow.movementTimeTaken > 0.15)
+                    {
+                        MainWindow.currentSpeed = magnitude / MainWindow.movementTimeTaken;
+                    }
+                }
+
+                if (magnitude >= 1.0 && !MainWindow.movementHitThreshold)
+                {
+                    MainWindow.speedToOneNewton = MainWindow.movementTimeTaken > 0.2 ? magnitude / MainWindow.movementTimeTaken : 0;
+                    MainWindow.movementHitThreshold = true;
+                }
+
+                if (magnitude < 0.15)
+                {
+                    MainWindow.movementInProgress = false;
+                    MainWindow.movementHitThreshold = false;
+                    MainWindow.currentSpeed = 0;
+                }
+            }
+
+            if (MainWindow.hapticMarkExpInProgress)
+            {
+                MainWindow.hapticMarkOutOfBounds = magnitude > MainWindow.hapticMarkVar1[3] ? true : false;
+            }
+            if (!MainWindow.recordValues || !doLog) return;
+
             ExpData newPoint = new ExpData(fx, fy, fz, magnitude);
             MainWindow.valuesToWrite.Add(newPoint);
         }

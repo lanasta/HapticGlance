@@ -8,9 +8,11 @@
         Title="Illusion Experiment" Height="495.68" Width="446">
     <Canvas HorizontalAlignment="Left" Margin="7,2,-6,30.4" Width="439">
         <Button x:Name="menu1" Content="Direction Discrimination" Width="208" Canvas.Left="106" Canvas.Top="128" Height="68" Click="DirectionDiscriminationButton" IsEnabled="False"/>
-        <Button x:Name="menu2" Content="Haptic Mark Count" Width="208" Canvas.Left="106" Canvas.Top="228" Height="68" Click="HapticMarkCountButton" IsEnabled="False"/>
+        <Button x:Name="menu2" Content="Just Noticeable Difference (JND)" Width="208" Canvas.Left="106" Canvas.Top="229" Height="68" Click="JNDButton" IsEnabled="False"/>
+        <Button x:Name="menu3" Content="Haptic Mark Count" Width="208" Canvas.Left="106" Canvas.Top="331" Height="68" Click="HapticMarkCountButton" IsEnabled="False"/>
         <Label Content="Participant ID: " Canvas.Left="106" Canvas.Top="32"/>
         <TextBox x:Name="participantIDBox" Height="23" TextWrapping="Wrap" Width="117" Canvas.Left="197" Canvas.Top="36"/>
         <Button x:Name="setExperimentInfo" Content="Set Info" Width="75" Canvas.Left="172" Canvas.Top="84" Click="SetInfo"/>
+        
     </Canvas>
 </Window>

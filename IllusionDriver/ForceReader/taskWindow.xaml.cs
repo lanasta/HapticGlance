@@ -14,6 +14,7 @@ namespace ForceReader
         String participantID;
         DirectionDiscrimination directionDiscriminationTest;
         HapticMarkExp hapticMarkExperiment;
+        JNDExp jndExperiment;
         bool allowExperiments = false;
 
         public taskWindow()
@@ -32,6 +33,13 @@ namespace ForceReader
         {
             directionDiscriminationTest = new DirectionDiscrimination(participantID);
             directionDiscriminationTest.Show();
+            MainWindow.resp.SetBG(); //recalibrates each time an experiment starts
+        }
+
+        private void JNDButton(object sender, RoutedEventArgs e)
+        {
+            jndExperiment = new JNDExp(participantID);
+            jndExperiment.Show();
             MainWindow.resp.SetBG(); //recalibrates each time an experiment starts
         }
 
@@ -60,11 +68,13 @@ namespace ForceReader
             {
                 menu1.IsEnabled = true;
                 menu2.IsEnabled = true;
+                menu3.IsEnabled = true;
             }
             else
             {
                 menu1.IsEnabled = false;
                 menu2.IsEnabled = false;
+                menu3.IsEnabled = false;
             }
         }
     }

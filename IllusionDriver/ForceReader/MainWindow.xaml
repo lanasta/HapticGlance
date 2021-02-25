@@ -5,15 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ForceReader"
         mc:Ignorable="d"
-        Title="Illusion Driver" Height="570.8" Width="629" Loaded="Window_Loaded" HorizontalAlignment="Center" VerticalAlignment="Center">
-    <Grid Margin="0,0,3.4,3">
+        Title="Illusion Driver" Height="808.447" Width="629" Loaded="Window_Loaded" HorizontalAlignment="Center" VerticalAlignment="Center">
+    <Grid Margin="0,0,3,4">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="0*"/>
-            <ColumnDefinition Width="231*"/>
-            <ColumnDefinition Width="521*"/>
+            <ColumnDefinition Width="127*"/>
+            <ColumnDefinition Width="0*"/>
+            <ColumnDefinition Width="182*"/>
             <ColumnDefinition Width="0*"/>
         </Grid.ColumnDefinitions>
-        <GroupBox Header="Sensor" HorizontalAlignment="Left" Height="110" Margin="98.8,10,0,0" VerticalAlignment="Top" Width="295" Grid.Column="2">
+        <GroupBox Header="Sensor" HorizontalAlignment="Left" Height="110" Margin="37,10,0,0" VerticalAlignment="Top" Width="295" Grid.Column="3">
             <Canvas Margin="0,0,0.2,17.4">
                 <Button Content="Connect" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Click="Button_Click" Canvas.Left="23" Canvas.Top="9" Height="37"/>
                 <Button x:Name="stopButton"  Content="Stop" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Click="stopButton_Click" Canvas.Left="103" Canvas.Top="9" Height="37"/>
@@ -24,19 +25,21 @@
                 <Label Content="Fx" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="25" Canvas.Top="60"/>
                 <Label Content="Fy" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="105" Canvas.Top="60"/>
                 <Label Content="Fz" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="185" Canvas.Top="60"/>
-                <Label x:Name="fpsBox" Content="0" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="192" Canvas.Top="-22"/>
-                <Label Content="FPS:" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="160" Canvas.Top="-22"/>
+                <Label x:Name="fpsBox" Content="0" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="267" Canvas.Top="86"/>
+                <Label Content="FPS:" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="235" Canvas.Top="86"/>
             </Canvas>
         </GroupBox>
-        <GroupBox Header="Actuator" Height="70" HorizontalAlignment="Left"  Margin="102.8,125,0,0" VerticalAlignment="Top" Grid.Column="2" Width="295">
+        <GroupBox Header="Actuator" Height="70" HorizontalAlignment="Left"  Margin="37,125,0,0" VerticalAlignment="Top" Grid.Column="3" Width="295">
             <Canvas Margin="0,0,-1.8,0">
                 <Label Content="Serial Port" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="10" Canvas.Top="13"/>
                 <TextBox x:Name="portBox" HorizontalAlignment="Left" Height="24" TextWrapping="Wrap" Text="COM3" MaxLines="100" VerticalAlignment="Top" Width="77" Canvas.Left="79" Canvas.Top="14"/>
                 <Button x:Name="serialButton"  Content="Open" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Click="serialBtn_Click" Canvas.Left="176"/>
                 <Button Content="Bottom Out" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Grid.Column="2" Click="bottomOutBtn_Click"  Canvas.Left="176" Canvas.Top="24" RenderTransformOrigin="0.533,0"/>
+                <Button Content="Launch Experiment" Canvas.Left="79" Canvas.Top="65" Width="112" Click="Button_Click_2"/>
+
             </Canvas>
         </GroupBox>
-        <GroupBox Header="Feedback" HorizontalAlignment="Left" Height="91" Margin="102.8,200,0,0" VerticalAlignment="Top" Width="296" Grid.Column="2">
+        <GroupBox Header="Feedback" HorizontalAlignment="Left" Height="91" Margin="34,476,0,0" VerticalAlignment="Top" Width="296" Grid.Column="3">
             <Canvas Margin="0,-34,0,35.4">
                 <TextBox x:Name="bendThreshBox" HorizontalAlignment="Left" Height="24" TextWrapping="Wrap" Text="0.2" MaxLines="100" VerticalAlignment="Top" Width="50" Canvas.Left="130" Canvas.Top="38" TextChanged="bendThreshBox_TextChanged"/>
                 <Button x:Name="setButton"  Content="Set" HorizontalAlignment="Left" VerticalAlignment="Top" Width="71" Click="setButton_Click" Height="27" Canvas.Left="202" Canvas.Top="37"/>
@@ -46,14 +49,14 @@
                 <Label Content="Max Travel" Canvas.Top="68" Canvas.Left="8"/>
             </Canvas>
         </GroupBox>
-        <GroupBox Header="Friction" HorizontalAlignment="Left" Height="52" Margin="99.8,294,0,0" VerticalAlignment="Top" Width="295" Panel.ZIndex="-10" Grid.Column="2">
+        <GroupBox Header="Friction" HorizontalAlignment="Left" Height="52" Margin="35,572,0,0" VerticalAlignment="Top" Width="295" Panel.ZIndex="-10" Grid.Column="3">
             <Canvas Margin="0,0,0.2,13.6">
                 <Label x:Name="frictionLabel" Content="0" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="3.538,0.586" Height="26" Width="16" Canvas.Top="3"/>
                 <Slider Name="frictionSlider" HorizontalAlignment="Left" VerticalAlignment="Top" Width="197" ValueChanged="Slider_ValueChanged" Maximum="4" SmallChange="1" Grid.Column="2" Height="18" Canvas.Left="20" Canvas.Top="6" Minimum="1" Value="1"/>
                 <Button x:Name="setFriction" Content="Set" HorizontalAlignment="Left" VerticalAlignment="Top" Width="43" Click="Set_Friction" RenderTransformOrigin="1,0.865" Grid.Column="2" Height="19" Canvas.Left="224" Canvas.Top="5"/>
             </Canvas>
         </GroupBox>
-        <GroupBox Header="Encoding Simulator" HorizontalAlignment="Left" Height="134" Margin="99.8,351,0,0" VerticalAlignment="Top" Width="296" Grid.Column="2">
+        <GroupBox Header="Encoding Simulator" HorizontalAlignment="Left" Height="134" Margin="36,629,0,0" VerticalAlignment="Top" Width="296" Grid.Column="3">
             <Canvas Margin="0,0,0,5.6">
                 <Label x:Name="unreadMessages" Content="New Messages&#xA;" HorizontalAlignment="Left" VerticalAlignment="Top" Height="28" Canvas.Top="7"/>
                 <Label x:Name="missedCalls" Content="Missed Calls" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Top="55" Canvas.Left="1"/>
@@ -67,32 +70,90 @@
                 <Slider x:Name="rightEncodingSlider" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Top" Width="159" ValueChanged="rightEncodingCount_ValueChanged" Maximum="5" SmallChange="1" Height="18" Canvas.Left="116" Value="3" Canvas.Top="60"/>
                 <Label x:Name="downEncodingCount" Content="0" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="3.538,0.586" Height="25" Width="16" Canvas.Left="100" Canvas.Top="78"/>
                 <Slider x:Name="downEncodingSlider" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Top" Width="159" ValueChanged="downEncodingCount_ValueChanged" Maximum="5" SmallChange="1" Height="18" Canvas.Left="116" Value="3" Canvas.Top="84"/>
-                <Button Content="Launch Experiment" Canvas.Left="83" Canvas.Top="128" Width="112" Click="Button_Click_2"/>
             </Canvas>
         </GroupBox>
-        <Canvas Margin="0,0,158.2,5" Grid.ColumnSpan="2">
-        </Canvas>
-        <Canvas x:Name="forceCanvas" Margin="39,10,0,0" Width="200" Height="250" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Column="1" Grid.ColumnSpan="2">
-            <Label Content="Force Vector" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" FontWeight="Bold" Width="96"/>
+        <Canvas x:Name="forceCanvas" Margin="39,10,0,0" Width="200" Height="250" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Column="1">
+            <Label Content="Force Vector" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" FontWeight="Bold" Width="96" Canvas.Top="-16" Canvas.Left="56"/>
+            <Label Content="North" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="80" FontSize="11"/>
+            <Label Content="Northeast" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="176" FontSize="11"/>
+            <Label Content="East" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="200" Canvas.Top="109" FontSize="11"/>
+            <Label Content="Southeast" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="185" Canvas.Top="222" FontSize="11"/>
+            <Label Content="South" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="80" Canvas.Top="222" FontSize="11"/>
+            <Label Content="Southwest" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="-32" Canvas.Top="222" FontSize="11"/>
+            <Label Content="West" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="-32" Canvas.Top="110" FontSize="11"/>
+            <Label Content="Northwest" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="-32" Canvas.Top="2" FontSize="11"/>
+
+
             <Rectangle x:Name="forcePanel" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="200" Width="200" Margin="0,25,0,0" Stroke="Black" VerticalAlignment="Top"/>
             <Line X1="0" X2="200" Y1="125" Y2="125" StrokeThickness="2" Stroke="Black"/>
             <Line X1="100" X2="100" Y1="25" Y2="225" StrokeThickness="2" Stroke="Black"/>
+            <Line X1="100" X2="100" Y1="25" Y2="350" StrokeThickness="2" Stroke="Black" Canvas.Left="21" Canvas.Top="-10" RenderTransformOrigin="0.5,0.5" Height="306">
+                <Line.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform/>
+                        <SkewTransform/>
+                        <RotateTransform Angle="-45"/>
+                        <TranslateTransform/>
+                    </TransformGroup>
+                </Line.RenderTransform>
+            </Line>
+            <Line X1="100" X2="100" Y1="25" Y2="350" StrokeThickness="2" Stroke="Black" Canvas.Left="8" Canvas.Top="-78" RenderTransformOrigin="0.5,0.5" Height="306">
+                <Line.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform/>
+                        <SkewTransform/>
+                        <RotateTransform Angle="45"/>
+                        <TranslateTransform/>
+                    </TransformGroup>
+                </Line.RenderTransform>
+            </Line>
+
             <Ellipse x:Name="forceCursor" Width="10" Height="10" Fill="Orange" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0,25,0,0" Stroke="Black"/>
             <Rectangle x:Name="mousePanel" HorizontalAlignment="Left" Height="200" Width="200" Stroke="Black" VerticalAlignment="Top" Fill="#02000000" Canvas.Top="24"/>
         </Canvas>
-        <Canvas x:Name="hapticCanvas" Margin="39,260,0,0" Width="250" Height="250" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Column="1" Grid.ColumnSpan="2">
+        <Canvas x:Name="hapticCanvas" Margin="39,513,0,0" Width="250" Height="250" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Column="1" Grid.ColumnSpan="3">
             <Label Content="Haptic Vector" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" FontWeight="Bold" Width="96"/>
             <Rectangle x:Name="hapticPanel" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="200" Width="200" Margin="0,25,0,0" Stroke="Black" VerticalAlignment="Top"/>
 
 
 
             <Line X1="0" X2="200" Y1="125" Y2="125" StrokeThickness="2" Stroke="Black"/>
-            <Line X1="100" X2="100" Y1="25" Y2="225" StrokeThickness="2" Stroke="Black" Height="193" Canvas.Top="21"/>
+            <Line X1="100" X2="100" Y1="25" Y2="225" StrokeThickness="2" Stroke="Black" Height="224"/>
             <Line X1="-5" X2="255" Y1="0" Y2="260" StrokeThickness="2" Stroke="Black" Height="203" Canvas.Top="21"/>
             <Line X1="200" X2="-60" Y1="0" Y2="260" StrokeThickness="2" Stroke="Black" Height="245" Canvas.Top="25"/>
 
             <Ellipse x:Name="hapticCursor" Width="10" Height="10" Fill="Orange" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0,25,0,0" Stroke="Black"/>
             <Ellipse x:Name="roamArea" Width="50" Height="50" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0,25,0,0" Stroke="OrangeRed"/>
+            <Image Grid.ColumnSpan="2" HorizontalAlignment="Left" VerticalAlignment="Top" Height="40" Width="40" Source="mail.png" Canvas.Left="81"/>
+            <Image Grid.ColumnSpan="2" HorizontalAlignment="Left" VerticalAlignment="Top" Height="34" Width="38" Source="message.png" Canvas.Left="-18" Canvas.Top="109"/>
+            <Image HorizontalAlignment="Left" VerticalAlignment="Top" Height="31" Width="35" Source="phone.png" Grid.Column="1" Grid.ColumnSpan="2" Canvas.Left="190" Canvas.Top="109"/>
+            <Image Grid.ColumnSpan="2" HorizontalAlignment="Left" VerticalAlignment="Top" Height="35" Width="35" Source="task.png" Canvas.Left="81" Canvas.Top="224"/>
+            <Ellipse x:Name="roamArea_Copy" Width="50" Height="50" VerticalAlignment="Top" HorizontalAlignment="Left" Stroke="OrangeRed" Canvas.Top="-478"/>
+        </Canvas>
+        <Grid Grid.ColumnSpan="2" Margin="39,327,1,204" Opacity="0.8">
+            <Rectangle HorizontalAlignment="Left" Height="23" Stroke="Black" StrokeThickness="2" VerticalAlignment="Top" Width="200" Grid.ColumnSpan="10"/>
+            <Rectangle HorizontalAlignment="Left" Height="23" Stroke="Black" StrokeThickness="2" VerticalAlignment="Top" Width="200" Margin="0,50,0,0"/>
+            <Rectangle x:Name="speedGuide" HorizontalAlignment="Left" Height="23" Fill="SkyBlue" StrokeThickness="2" VerticalAlignment="Top" Width="2" Grid.ColumnSpan="3"/>
+            <Rectangle x:Name="magnitudeGuideBar" HorizontalAlignment="Left" Height="23" Fill="SkyBlue" StrokeThickness="2" VerticalAlignment="Top" Width="2" Grid.ColumnSpan="3"/>
+            <Rectangle x:Name="actualMagnitudeBar" HorizontalAlignment="Left" Height="23" Fill="#FF5A90A6" StrokeThickness="2" VerticalAlignment="Top" Width="2" Margin="0,50,0,0"/>
+            <Label Content="Previous Speed To 1 N: " HorizontalAlignment="Left" VerticalAlignment="Top" Width="158" RenderTransformOrigin="0.458,1.654" Margin="-1,73,0,0"/>
+            <Label x:Name="movementSpeedToReach1N" Content="0" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="-0.25,0.692" Margin="142,73,0,0" Background="#00000000"/>
+            <Label x:Name="speedUnit_Copy" Content="N/s" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="-0.25,0.692" Margin="171,73,0,0"/>
+            <Label Content="Magnitude Guide" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" RenderTransformOrigin="0.458,1.654" Margin="0,-23,14,0" FontSize="11"/>
+            <Label Content="Magnitude" HorizontalAlignment="Left" Margin="0,26,0,0" VerticalAlignment="Top" FontSize="11"/>
+            <Label x:Name="magnitudeMovement" Content="0.00" HorizontalAlignment="Left" Margin="152,24,0,0" VerticalAlignment="Top"/>
+            <Label x:Name="speedUnit_Copy1" Content="N" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="-0.25,0.692" Margin="181,24,0,0"/>
+            <Rectangle x:Name="targetBar" HorizontalAlignment="Left" Height="26" Fill="Green" StrokeThickness="2" VerticalAlignment="Top" Width="2" Margin="78,0,0,0"/>
+            <Rectangle x:Name="targetBar_Copy" HorizontalAlignment="Left" Height="24" Fill="Green" StrokeThickness="2" VerticalAlignment="Top" Width="2" Margin="78,47,0,0"/>
+            <Label Content="1 N" HorizontalAlignment="Left" Margin="68,29,0,0" VerticalAlignment="Top" Background="#FFBDE4C5" Width="21" FontSize="6" RenderTransformOrigin="0.533,0.667"/>
+            <Label x:Name="speedUnit" Content="N" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="-0.25,0.692" Margin="181,-25,0,0"/>
+            <Label x:Name="magnitudeMovementGuideValue" Content="0.00" HorizontalAlignment="Left" Margin="152,-25,0,0" VerticalAlignment="Top"/>
+            <Label x:Name="movementIndicator" Content="" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="-0.25,0.692" Margin="161,93,0,0" FontSize="10"/>
+
+        </Grid>
+        <Canvas Margin="0,0,156,5" Grid.ColumnSpan="2">
+            <Rectangle Fill="White" Height="310" StrokeThickness="2" Canvas.Top="467" Width="620"/>
+            <TextBlock Canvas.Left="27" TextWrapping="Wrap" Canvas.Top="261" Height="61" Width="238" FontSize="10"><Run Text="Follow the guide as close as you can. The acceptable speed is "/><Run FontWeight="Bold" Text="1.5 - 3 N/s"/><Run Text=".  Lift your thumb and restart the movement until you see a green &quot;OK&quot;."/></TextBlock>
         </Canvas>
         <!--<GroupBox Header="Haptic Marks" Height="168" HorizontalAlignment="Left"  Margin="9.6,166,0,0" VerticalAlignment="Top" Grid.Column="3" Width="152"/>
         <TextBox x:Name="settingBox" Grid.Column="3" HorizontalAlignment="Left" Height="107" Margin="22.6,190,0,0" TextWrapping="Wrap" Text="Left: -0.6, -1, -1.5&#xA;Top: 0.6, 1, 1.5&#xA;Bottom: -0.6, -1, -1.5&#xA;Right: 0.6, 1, 1.5" VerticalAlignment="Top" Width="124" AcceptsReturn="True" TextChanged="settingBox_TextChanged" BorderBrush="#FFEDEFF6" />
@@ -106,9 +167,5 @@
                 <RadioButton AutomationProperties.Name="buzzingMode" Content="Buzzing" Canvas.Top="48" Canvas.Left="10"/>
             </Canvas>
         </GroupBox>-->
-        <Image Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="120,276,0,0" VerticalAlignment="Top" Height="40" Width="40" Source="mail.png"/>
-        <Image Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="26,365,0,0" VerticalAlignment="Top" Height="34" Width="38" Source="message.png"/>
-        <Image HorizontalAlignment="Left" Margin="220,368,0,0" VerticalAlignment="Top" Height="31" Width="35" Source="phone.png" Grid.Column="1" Grid.ColumnSpan="2"/>
-        <Image Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="120,469,0,0" VerticalAlignment="Top" Height="35" Width="35" Source="task.png"/>
     </Grid>
 </Window>

@@ -16,29 +16,27 @@ namespace ForceReader
         int blockNumber = 1;
         int blockLimit = 3;
         int trialNumber = 1;
-        int trialLimit = 10;
-        int currentDirectionIdx = 0;
-        int currentMarksIdx = 0;
+        int trialLimit = 15;
+        int currentComboIdx = 0;
         int blockBreakDuration = 30000;
         BackgroundWorker worker;
         bool recordingInProgress = false;
         bool experimentInProgress = false;
         bool answerEntered = false;
 
-        int attemptsPerTrialLimit = 5;
+        int attemptsPerTrialLimit = 3;
         int timesHighestMarkHit = 0;
         String participantId = "";
         String hapticMarksAnswer = "";
-        static string[] directionsToTest = { "n", "w", "e", "s" };
-        //List<String> directionsToTest = new List<String> { "n", "e" };
 
         bool highHit = false;
 
-        int dirCount = 4;
-        List<int> testNumMarks = new List<int> { 4, 2, 3, 1, 3, 1, 2, 4, 1, 2, 3, 4 };
+        List<int> testNumMarks = new List<int> { 2, 4, 3, 1, 0, 3, 1, 0, 2, 4, 1, 2, 3, 4, 0 };
         int testNumIdx = 0;
         int sampleClicked = 0;
-        List<int> numMarksToTest = new List<int> { 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4 };
+        List<CombinationPair> combination = new List<CombinationPair>();
+        int combinationCount = 0;
+
         private static Random rng = new Random();
         Regex nonNumerical = new Regex("[^0-9.]");
 
@@ -46,7 +44,12 @@ namespace ForceReader
         {
             InitializeComponent();
             this.participantId = participantId;
-            numMarksToTest = ShuffleArray(numMarksToTest);
+            for (int j = 0; j < 5; j++)
+            {
+                combination.Add(new CombinationPair(1, j));
+            }
+            combination = ShuffleArray(combination);
+            combinationCount = combination.Count;
             worker = new BackgroundWorker();
             worker.DoWork += new DoWorkEventHandler(worker_doWork);
             worker.ProgressChanged += new ProgressChangedEventHandler
@@ -57,7 +60,6 @@ namespace ForceReader
             worker.WorkerSupportsCancellation = true;
             //MainWindow.deactivateFeedback = true;
             MainWindow.deactivateFeedback = false;
-            dirCount = directionsToTest.Length;
             MainWindow.hapticMarkExpInProgress = true;
             MainWindow.patternMode = 1;
             ResetHapticMarks();
@@ -96,49 +98,70 @@ namespace ForceReader
         async void worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             if (!experimentInProgress) return;
-            if (currentDirectionIdx == dirCount)
-            {
-                trialNumber = 1;
-                blockNumber += 1;
-                numMarksToTest = ShuffleArray(numMarksToTest);
-                currentMarksIdx = 0;
-                currentDirectionIdx = 0;
-                northImg.Source = new BitmapImage(new Uri(@"C:\Users\anastasialalamentik\Desktop\HapticGlance\IllusionDriver\ForceReader\" + directionsToTest[currentDirectionIdx] + ".png"));
-                if (blockNumber > blockLimit)
+            if (!answerEntered && !MainWindow.checkIfSpeedAcceptable() && timesHighestMarkHit > 0 && timesHighestMarkHit < attemptsPerTrialLimit)
+            {   
+                answerGroup.Visibility = Visibility.Hidden;
+                if (MainWindow.speedToOneNewton < MainWindow.acceptableSpeedLow)
                 {
-                    MainWindow.deactivateFeedback = true;
-                    experimentInProgress = false;
-                    expInstructions.Text = "You have completed this experiment. Please close the window.";
-                    northImg.Visibility = Visibility.Hidden;
-                    readyTimer.Visibility = Visibility.Hidden;
-                    answerGroup.Visibility = Visibility.Hidden;
-                    await Task.Delay(2000);
-                    MainWindow.hapticMarkExpInProgress = false;
-                    worker.CancelAsync();
-                    return;
+                    speedWarningLabel.Text = "You moved too slow at " + MainWindow.speedToOneNewton.ToString("0.00") + " N/s, move faster at 1.5 - 3 N/s";
                 }
-                BlockBreak();
+                else
+                {
+                    speedWarningLabel.Text = "You moved too fast at " + MainWindow.speedToOneNewton.ToString("0.00") + " N/s, move slower at 1.5 - 3 N/s";
+                }
+            } else
+            {
+                answerGroup.Visibility = Visibility.Visible;
+                marksFeltAnswerBox.Focus();
+                speedWarningLabel.Text = "";
             }
-            if (answerEntered && currentDirectionIdx < dirCount)
+            if (answerEntered)
             {
                 trialNumber += 1;
-                currentMarksIdx += 1;
-                TrialBreak(trialNumber > trialLimit);
+                if (currentComboIdx == combinationCount - 1)
+                {
+                    currentComboIdx = 0;
+                    combination = ShuffleArray(combination);
+                } else
+                {
+                    currentComboIdx += 1;
+                }
+                Debug.WriteLine("start exp with # marks" + " " + combination[currentComboIdx].markCount);
+                MainWindow.ChangeGapVariation(combination[currentComboIdx].gapVariation);
                 if (trialNumber > trialLimit )
                 {
-                    currentDirectionIdx += 1;
                     trialNumber = 1;
-                    if (currentDirectionIdx < dirCount)
+                    blockNumber += 1;
+                    combination = ShuffleArray(combination);
+                    currentComboIdx = 0;
+                    //northImg.Source = new BitmapImage(new Uri(@"C:\Users\anastasialalamentik\Desktop\HapticGlance\IllusionDriver\ForceReader\" + directionsToTest[0] + ".png"));
+                    if (blockNumber > blockLimit)
                     {
-                        northImg.Source = new BitmapImage(new Uri(@"C:\Users\anastasialalamentik\Desktop\HapticGlance\IllusionDriver\ForceReader\" + directionsToTest[currentDirectionIdx] + ".png"));
+                        MainWindow.deactivateFeedback = true;
+                        experimentInProgress = false;
+                        expInstructions.Text = "You have completed this experiment. Please close the window.";
+                        northImg.Visibility = Visibility.Hidden;
+                        readyTimer.Visibility = Visibility.Hidden;
+                        answerGroup.Visibility = Visibility.Hidden;
+                        await Task.Delay(2000);
+                        MainWindow.hapticMarkExpInProgress = false;
+                        worker.CancelAsync();
+                        return;
                     }
+                    BlockBreak();
+                    return;
+                    /*if (currentComboIdx < gapVarCount)
+                    {
+                        northImg.Source = new BitmapImage(new Uri(@"C:\Users\anastasialalamentik\Desktop\HapticGlance\IllusionDriver\ForceReader\" + gapVariationsToTest[0] + ".png"));
+                    }*/
                 }
+                TrialBreak(trialNumber > trialLimit);
             }
             else {
                 detectRecordingStart();
                 if (recordingInProgress && !answerEntered)
                 {
-                    String fileName = @"C: \Users\anastasialalamentik\Downloads\DataCollection\HapticMarkExp\HapticMarkExp_Participant-"+ participantId + "_Block-"+ blockNumber + "_Trial-" + trialNumber + "-direction_" + directionsToTest[currentDirectionIdx] + string.Format("-{0:yyyy-MM-dd_hh-mm-ss-tt}.csv", DateTime.Now);
+                    String fileName = @"C: \Users\anastasialalamentik\Downloads\DataCollection\HapticMarkExp\HapticMarkExp_Participant-"+ participantId + "_Block-"+ blockNumber + "_Trial-" + trialNumber + "_MarkCount-" + combination[currentComboIdx].markCount + string.Format("-{0:yyyy-MM-dd_hh-mm-ss-tt}.csv", DateTime.Now);
                     MainWindow.setRecordValuesMode(true, fileName);
                     recordingInProgress = true;
                 }
@@ -151,7 +174,7 @@ namespace ForceReader
             startExperiment.Visibility = Visibility.Hidden;
             readyTimer.Visibility = Visibility.Visible;
             MainWindow.deactivateFeedback = false;
-            Debug.WriteLine("start exp this many marks" + " " + GetCurrentDirection() + " " + numMarksToTest[currentMarksIdx]);
+            Debug.WriteLine("start exp this many marks" + " "  + combination[currentComboIdx].markCount);
             readyTimer.Text = "3...";
             await Task.Delay(1000);
             readyTimer.Text = "3...2...";
@@ -166,7 +189,7 @@ namespace ForceReader
             getFamiliarInstructions.Visibility = Visibility.Hidden;
             worker.RunWorkerAsync();
             marksFeltAnswerBox.Focus();
-            northImg.Source = new BitmapImage(new Uri(@"C:\Users\anastasialalamentik\Desktop\HapticGlance\IllusionDriver\ForceReader\" + directionsToTest[currentDirectionIdx] + ".png"));
+            northImg.Source = new BitmapImage(new Uri(@"C:\Users\anastasialalamentik\Desktop\HapticGlance\IllusionDriver\ForceReader\w.png"));
             MainWindow.hapticMarkExpInProgress = true;
             ResetHapticMarks();
         }
@@ -178,13 +201,6 @@ namespace ForceReader
             northImg.Visibility = Visibility.Hidden;
             readyTimer.Visibility = Visibility.Visible;
             readyTimer.Visibility = Visibility.Visible;
-            if (directionChange && currentDirectionIdx != dirCount - 1)
-            {
-                numMarksToTest = ShuffleArray(numMarksToTest);
-                currentMarksIdx = 0;
-                readyTimer.Text = "Please pay attention to the new direction.";
-                await Task.Delay(3000);
-            }
             readyTimer.Text = "2...";
             await Task.Delay(1000); 
             readyTimer.Text = "2...1...";
@@ -199,6 +215,7 @@ namespace ForceReader
             marksFeltAnswerBox.Text = String.Empty;
             MainWindow.deactivateFeedback = false;
             timesHighestMarkHit = 0;
+            speedWarningLabel.Text = "";
         }
 
         private void ResetHapticMarks()
@@ -207,28 +224,28 @@ namespace ForceReader
             MainWindow.GenerateHapticMarks(2, 0);
             MainWindow.GenerateHapticMarks(3, 0);
             MainWindow.GenerateHapticMarks(4, 0);
-            if (currentMarksIdx < numMarksToTest.Count)
+            if (currentComboIdx < combination.Count)
             {
-                MainWindow.GenerateHapticMarks(GetCurrentDirection(), numMarksToTest[currentMarksIdx]);
+                MainWindow.GenerateHapticMarks(1, combination[currentComboIdx].markCount);
             }
         }
 
-        private int GetCurrentDirection()
+        /*private int GetCurrentDirection()
         {
-            if (currentDirectionIdx > dirCount - 1) { return 1; }
-            String curDir = directionsToTest[currentDirectionIdx];
+            if (currentComboIdx > gapVarCount - 1) { return 1; }
+            String curDir = directionsToTest[currentDirIdx];
             int correspondingNumber = curDir == "w" ?1 : (curDir == "s" ? 4 : (curDir == "n" ? 2 : 3));
             return correspondingNumber; 
-        }
+        }*/
 
-        List<int> ShuffleArray(List<int> list)
+        List<CombinationPair> ShuffleArray(List<CombinationPair> list)
         {
             int n = list.Count;
             while (n > 1)
             {
                 n--;
                 int k = rng.Next(n + 1);
-                int value = list[k];
+                CombinationPair value = list[k];
                 list[k] = list[n];
                 list[n] = value;
             }
@@ -269,6 +286,8 @@ namespace ForceReader
             experimentInProgress = true;
             MainWindow.deactivateFeedback = false;
             timesHighestMarkHit = 0;
+            marksFeltAnswerBox.Text = String.Empty;
+            speedWarningLabel.Text = "";
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -279,7 +298,7 @@ namespace ForceReader
 
         void trackHighestThresholdHit()
         {
-            String currentDirection = directionsToTest[currentDirectionIdx];
+            String currentDirection = "w";
             if (currentDirection == "w" && timesHighestMarkHit < attemptsPerTrialLimit)
             {
                 if (MainWindow.force.fx < -2)
@@ -352,7 +371,7 @@ namespace ForceReader
 
         void detectRecordingStart()
         {
-            String currentDirection = directionsToTest[currentDirectionIdx];
+            String currentDirection = "w";
             if (currentDirection == "s" || currentDirection == "n")
             {
                 manageStateChanges(MainWindow.force.fy);
@@ -380,7 +399,7 @@ namespace ForceReader
 
         bool evaluateRecordStart(double value)
         {
-            String curDir = directionsToTest[currentDirectionIdx];
+            String curDir = "w";
             if (curDir == "ne" || curDir == "nw" || curDir == "sw" || curDir == "se" || curDir == "n" || curDir == "e")
             {
                 return value > 0.01;
@@ -396,7 +415,7 @@ namespace ForceReader
         {
             answerEntered = true;
             hapticMarksAnswer = nonNumerical.Replace(marksFeltAnswerBox.Text, "");
-            int correctAnswer = numMarksToTest[currentMarksIdx];
+            int correctAnswer = combination[currentComboIdx].markCount;
             Debug.WriteLine("User's answer: " +  hapticMarksAnswer + ", correct answer: " + correctAnswer);
             MainWindow.hapticMarkAnswerLine = (correctAnswer.ToString() == hapticMarksAnswer).ToString() + ", " + hapticMarksAnswer + ", " + correctAnswer;
             marksFeltAnswerBox.Text = String.Empty;
@@ -416,7 +435,7 @@ namespace ForceReader
             MainWindow.GenerateHapticMarks(1, testNumMarks[testNumIdx]);
             ShowTickMarks(testNumMarks[testNumIdx]);
             sampleClicked += 1;
-            if (sampleClicked == 9)
+            if (sampleClicked == testNumMarks.Count - 1)
             {
                 startExperiment.Visibility = Visibility.Visible;
                 testMarkCountSelection.Visibility = Visibility.Hidden;
@@ -431,7 +450,7 @@ namespace ForceReader
 
         private void ShowTickMarks(int testMarksCount)
         {
-            firstTick.Visibility = Visibility.Visible;
+            firstTick.Visibility = testMarksCount == 0 ? Visibility.Hidden : Visibility.Visible;
             secondTick.Visibility = Visibility.Hidden;
             thirdTick.Visibility = Visibility.Hidden;
             fourthTick.Visibility = Visibility.Hidden;
@@ -447,7 +466,6 @@ namespace ForceReader
                     }
                 }
             }
-
         }
 
         private void marksFeltAnswerBox_PreviewTextInput_1(object sender, System.Windows.Input.TextCompositionEventArgs e)
@@ -469,5 +487,17 @@ namespace ForceReader
                 }
             }
         }
+    }
+}
+
+public class CombinationPair
+{
+    public int gapVariation;
+    public int markCount;
+
+    public CombinationPair(int gapVar, int count)
+    {
+        gapVariation = gapVar;
+        markCount = count; 
     }
 }

@@ -1,0 +1,28 @@
+﻿<Window x:Class="ForceReader.JNDExp"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ForceReader"
+        mc:Ignorable="d"
+        Title="JND Experiment" Closing="Window_Closing" HorizontalAlignment="Center" VerticalAlignment="Center">
+    <Grid>
+        <Canvas HorizontalAlignment="Center" Width="596" Grid.ColumnSpan="3" Margin="82,0">
+            <Button x:Name="startExperiment" Content="Start" Width="76" Canvas.Left="268" Canvas.Top="346" Click="StartExperiment" RenderTransformOrigin="0.789,0.604"/>
+            <TextBlock x:Name="readyTimer"  TextWrapping="Wrap" Text="Please pay attention to the new direction." Canvas.Left="175" Canvas.Top="139" Height="125" Width="243" FontSize="24" Visibility="Hidden" TextAlignment="Center"/>
+            <Image x:Name="northImg" Visibility="Hidden" HorizontalAlignment="Left" VerticalAlignment="Top" Height="183" Width="183" Source="n.png" Grid.Column="1" Grid.ColumnSpan="2" Canvas.Left="204" Canvas.Top="139"/>
+            <TextBlock x:Name="getFamiliarInstructions" TextWrapping="Wrap" Canvas.Left="76" Canvas.Top="10" Text="Exert force towards the direction shown below. Do you feel 2 distinct vibrations? " Height="101" Width="419" FontSize="16" TextAlignment="Center"/>
+            <Grid x:Name="testMarkCountSelection" Canvas.Top="-18" >
+                <Image x:Name="testDirImg"  HorizontalAlignment="Left" VerticalAlignment="Top" Height="224" Width="227" Source="w.png" Margin="192,119,-95,-186"/>
+                <Label x:Name="firstTick" Content="|" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="282,214,0,-94" FontWeight="Bold" FontSize="20" RenderTransformOrigin="0.398,-0.122"/>
+                <Label x:Name="secondTick" Content="|" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="251,214,0,-94" FontWeight="Bold" FontSize="20" RenderTransformOrigin="0.557,0.981"/>
+            </Grid>
+            <Button x:Name="yesButton" Visibility="Hidden" Content="YES" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Height="53" Click="YesButton_Click" FontSize="15" Canvas.Left="56" Canvas.Top="426"/>
+            <Button x:Name="noButton" Visibility="Hidden" Content="NO" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Height="53" Click="NoButton_Click" FontSize="15" Canvas.Left="366" Canvas.Top="426"/>
+            <TextBlock x:Name="speedWarningLabel" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Adjust your speed accordingly." VerticalAlignment="Top" FontSize="14" Canvas.Left="10" TextAlignment="Center" Canvas.Top="371" Width="576"/>
+            <Button x:Name="switchSampleButton" Content="Sample 1 Haptic Mark" HorizontalAlignment="Left" VerticalAlignment="Top" Width="134" Canvas.Left="391" Canvas.Top="70" Click="switchSampleButton_Click"/>
+            <Label x:Name="sampleMessage" Content="You should be able to feel  2 haptic marks." Canvas.Left="76" Canvas.Top="65" FontSize="14"/>
+        </Canvas>
+    </Grid>
+
+</Window>

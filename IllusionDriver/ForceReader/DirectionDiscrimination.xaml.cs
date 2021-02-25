@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows; 
 using System.Windows.Media.Imaging;
 
 namespace ForceReader
@@ -16,7 +16,7 @@ namespace ForceReader
         int trialNumber = 1;
         int trialLimit = 10;
         int currentDirectionIdx = 0;
-        int blockBreakDuration = 30000;
+        int blockBreakDuration = 60000;
         BackgroundWorker worker;
         bool recordingInProgress = false;
         bool experimentInProgress = false;
@@ -101,15 +101,18 @@ namespace ForceReader
             {
                 trialNumber = 1;
                 blockNumber += 1;
+                BlockNumber.Content = blockNumber;
+                TrialNumber.Content = 0;
                 directionsToTest = ShuffleArray(directionsToTest);
                 currentDirectionIdx = 0;
                 northImg.Source = new BitmapImage(new Uri(@"C:\Users\anastasialalamentik\Desktop\HapticGlance\IllusionDriver\ForceReader\" + directionsToTest[currentDirectionIdx] + ".png"));
                 if (blockNumber > blockLimit)
                 {
+                    blockTrialInfo.Visibility = Visibility.Hidden;
                     MainWindow.deactivateFeedback = true;
                     recordingInProgress = false;
                     experimentInProgress = false;
-                    expInstructions.Text = "You have completed this experiment. Please close the window and move on to the Haptic Marks experiment.";
+                    expInstructions.Text = "You have completed this experiment. Please close the window and answer the survey questions.";
                     await Task.Delay(1000);
                     northImg.Visibility = Visibility.Hidden;
                     readyTimer.Visibility = Visibility.Hidden;
@@ -127,11 +130,13 @@ namespace ForceReader
                 {
                     currentDirectionIdx += 1;
                     trialNumber = 1;
+
                     if (currentDirectionIdx < numberOfDirections)
                     {
                         northImg.Source = new BitmapImage(new Uri(@"C:\Users\anastasialalamentik\Desktop\HapticGlance\IllusionDriver\ForceReader\" + directionsToTest[currentDirectionIdx] + ".png"));
                     }
                 }
+                TrialNumber.Content = trialNumber.ToString() + "/" + trialLimit.ToString() + " for direction " + (currentDirectionIdx + 1 > 8 ? 8 : currentDirectionIdx + 1).ToString() + "/8";
                 highValueHit = false;
                 lowValueHit = false;
             }
@@ -164,6 +169,26 @@ namespace ForceReader
         void manageStateChanges(double force) {
             if (highValueHit && Math.Abs(force) < 0.05)
             {
+                if (!MainWindow.checkIfSpeedAcceptable())
+                {
+                    MainWindow.valuesToWrite = new HashSet<ExpData>();
+                    MainWindow.expBeginningMs = (DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds;
+                    speedWarning.Visibility = Visibility.Visible;
+                    if (MainWindow.speedToOneNewton == 0)
+                    {
+                        speedWarning.Text = "Please release your thumb and re-attempt the trial.";
+                    } else if (MainWindow.speedToOneNewton < MainWindow.acceptableSpeedLow)
+                    {
+                        Debug.WriteLine(MainWindow.speedToOneNewton);
+                        speedWarning.Text = "You moved too slow at " + MainWindow.speedToOneNewton.ToString("0.00") + " N/s, exert force/roll thumb faster at 1.5 - 3 N/s";
+                    } else
+                    {
+                        speedWarning.Text = "You moved too fast at " + MainWindow.speedToOneNewton.ToString("0.00") + " N/s, exert force/roll thumb slower at 1.5 - 3 N/s";
+                    }
+                    return;
+                }
+                highPointHit.Visibility = Visibility.Visible;
+                speedWarning.Visibility = Visibility.Hidden;
                 lowValueHit = true;
                 if (recordingInProgress) {
                     MainWindow.setRecordValuesMode(false, null);
@@ -175,7 +200,10 @@ namespace ForceReader
             else if (Math.Abs(force) > getDirectionalThreshold() && recordingInProgress && !highValueHit)
             {
                 highValueHit = true;
-                highPointHit.Visibility = Visibility.Visible;
+                if (MainWindow.checkIfSpeedAcceptable())
+                {
+                    highPointHit.Visibility = Visibility.Visible;
+                }
                 Console.WriteLine("top hit... " + force);
             }
             else if (evaluateRecordStart(force) && experimentInProgress && !recordingInProgress && !lowValueHit && !highValueHit)
@@ -228,6 +256,8 @@ namespace ForceReader
             northImg.Visibility = Visibility.Visible;
             worker.RunWorkerAsync();
             Console.Write("currently testing " + directionsToTest[currentDirectionIdx]);
+            BlockNumber.Content = blockNumber;
+            TrialNumber.Content = trialNumber.ToString() + "/" + trialLimit.ToString() + " for direction " + (currentDirectionIdx + 1 > 8 ? 8 : currentDirectionIdx + 1).ToString() + "/8";
         }
 
         private async void TrialBreak(bool directionChange) {
@@ -259,7 +289,7 @@ namespace ForceReader
             northImg.Visibility = Visibility.Hidden;
             readyTimer.Visibility = Visibility.Visible;
             readyTimer.Visibility = Visibility.Visible;     
-            readyTimer.Text = "30 second break. You will be notified when there are 5 seconds left.";
+            readyTimer.Text = "1 minute break. You will be notified when there are 5 seconds left.";
             await Task.Delay(blockBreakDuration - 5000);
             readyTimer.Text = "5...";
             await Task.Delay(1000);

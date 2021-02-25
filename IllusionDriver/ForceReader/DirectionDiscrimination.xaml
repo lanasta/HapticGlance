@@ -11,6 +11,13 @@
         <TextBlock x:Name="readyTimer"  TextWrapping="Wrap" Text="Please pay attention to the new direction." Canvas.Left="175" Canvas.Top="139" Height="125" Width="243" FontSize="24" Visibility="Hidden" TextAlignment="Center"/>
         <Image x:Name="northImg" Visibility="Hidden" HorizontalAlignment="Left" VerticalAlignment="Top" Height="183" Width="183" Source="n.png" Grid.Column="1" Grid.ColumnSpan="2" Canvas.Left="204" Canvas.Top="139"/>
         <Ellipse x:Name="highPointHit" Visibility="Hidden" Fill="#FF509F73" Height="25" Canvas.Left="280" Stroke="Black" Canvas.Top="350" Width="25" RenderTransformOrigin="0.368,-0.336"/>
-        <TextBlock x:Name="expInstructions" TextWrapping="Wrap" Canvas.Left="94" Canvas.Top="33" Text="Please press towards the direction shown below using the thumb on your dominant hand. You may release your thumb when you see the green circle. There will be a break of 2 seconds in between attempts and two breaks of 30 seconds in between 3 blocks." Height="68" Width="419" HorizontalAlignment="Center"/>
+        <TextBlock x:Name="expInstructions" TextWrapping="Wrap" Canvas.Left="94" Canvas.Top="33" Text="Please press towards the direction shown below using the thumb on your dominant hand. Release your thumb when you see the green circle or at each attempt of getting the right speed. There will be a break of 2 seconds in between attempts and two breaks of 1 minute in between 3 blocks." Height="68" Width="419" HorizontalAlignment="Center"/>
+        <TextBlock x:Name="speedWarning"  TextWrapping="Wrap" Text="Please pay attention to the new direction." Canvas.Top="380" Height="24" Width="593" FontSize="14" Visibility="Hidden" TextAlignment="Center"/>
+        <Grid x:Name="blockTrialInfo" Height="26" Canvas.Left="-43" Canvas.Top="399" Width="637">
+            <Label Content="Block: " Margin="0,0,566,0"/>
+            <Label x:Name="BlockNumber" Content="0" Margin="46,0,566,0"/>
+            <Label x:Name="TrialNumber" Content="0" Margin="138,0,0,0"/>
+            <Label Content="Trial:" Margin="91,0,505,0"/>
+        </Grid>
     </Canvas>
 </Window>
