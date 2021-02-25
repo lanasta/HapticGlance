@@ -1,0 +1,73 @@
+/*This script is to extract a single wave/attempt from a direction discrimination trial. Have this file
+in the same folder level as the raw files to be processed, and craate a folder named "cleaned". All 
+the processed data will be in the cleaned folder. Use "node processRawDirectionDiscriminationData.js" to run, must have node installed first.*/
+ 
+const fs = require('fs')
+
+const dir = fs.opendirSync('.')
+let dirent;
+let count = 0;
+async function readFiles() {
+  while ((dirent = dir.readSync()) !== null) {
+  const { name } = dirent;
+  if (name.includes("DirectionDiscrimination")) {
+  fs.readFile(name, 'utf8', function(err, data){ 
+    // Display the file content 
+    let output = 'Timestamp, Fx, Fy, Fz, Magnitude\r';
+    //console.log("---------------------------------------------------------------------------------------------------------")
+    data = data.split("\n");
+    count += 1;
+    console.log(data.length);
+    let curIndex = data.length - 2;
+    let cutOffFound = false;
+    let highPointFound = false;
+    let beginningIdx = 0;
+    while (!cutOffFound && curIndex > -1) {
+     // data[curIndex] = data[curIndex].split(",");
+      let row =  data[curIndex].split(",");
+      let mag = row[4];
+      if (mag >= 1) {
+        highPointFound = true;
+      } else if (highPointFound && mag <= 0.2) {
+        cutOffFound = true;
+        beginningIdx = curIndex;
+      }
+      if (data[curIndex][4]){
+        let mag = data[curIndex][4];
+        data[curIndex][4] = mag.substring(0, mag.length - 3);
+      }
+      curIndex -= 1
+    }
+
+    beginningIdx = beginningIdx == 0 ? 1 : beginningIdx;
+    data = data.slice(beginningIdx);
+    data = splitToArrays(data);
+    let timeoffset = data[0][0];
+    for (let j = 0; j < data.length - 1; j++) {
+      let newTime = data[j][0] - timeoffset;
+      data[j][0] = newTime;
+      output += data[j].join(",");
+    }
+
+    fs.writeFile('./cleaned/Clean-' + name , output, (err) => { 
+      // In case of a error throw err. 
+      if (err) throw err; 
+    }) 
+  }); 
+  }
+  }
+dir.closeSync()
+}
+
+function splitToArrays(data) {
+  for (let i = 0; i < data.length; i++){
+    if (data[i] != "" || data[i] != null) {
+    let row = data[i].split(",");
+    data[i] = row;
+    }
+  }
+  return data;
+}
+
+
+readFiles();
