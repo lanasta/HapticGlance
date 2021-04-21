@@ -134,12 +134,18 @@ plotMagnitude <- function(direction) {
 assessAccuracy <- function(direction) {
   fileCount <- 0
   correctCount <- 0
+  sumAvgIncorrectAnswer <- 0
+  incorrectAnswerFileCount <- 0
   for (filename in myFiles) {
     accData <- read.csv(filename, header=FALSE, sep = ",", skip=1, nrows=1)
     
     fileCount <- fileCount + 1
+    
     if (accData[1] == "True")  {
       correctCount <- correctCount + 1
+    } else {
+      sumAvgIncorrectAnswer <- sumAvgIncorrectAnswer + accData[1,2]
+      incorrectAnswerFileCount <- incorrectAnswerFileCount + 1
     }
       
     # correctness <- accData$Correct
@@ -147,9 +153,11 @@ assessAccuracy <- function(direction) {
     # correctAnswer <- accData$`Correct Answer`
     # print("User answer: " + correctness)
   }
-  cat("\ncorrect: ", correctCount, "/", fileCount)
+  #cat("\ncorrect: ", correctCount, "/", fileCount)
+  avgAnswer <- sumAvgIncorrectAnswer/incorrectAnswerFileCount
+ # cat("\naverage answer: ", avgAnswer)
   accuracy <- correctCount/fileCount * 100
-  cat(" Accuracy: ", accuracy, "%")
+  cat("\nAccuracy: ", accuracy, "%")
 }
 
 getAdjustedAngle <- function(angle, direction){
@@ -199,57 +207,14 @@ directions <- list("n", "e", "s", "w")
 par(mfcol=c(4,6))
 par(pty="s")
 par(mar=c(2,1,2,1))
-h <- hash() 
-h1 <- hash() 
-h2 <- hash() 
-h3 <- hash() 
-h4 <- hash()
-h5 <- hash()
-h6 <- hash()
-h7 <- hash()
-firstPassAnglesDir <- hash()
-secondPassAnglesDir <- hash()
-peakPtAnglesDir <- hash()
-regAnglesDir <- hash()
-magnitudeAverage <- hash()
 bpYLim <- 40 #box plot y-limit
 
-pattern <- paste("HapticMarkExp*irb1*Block-3*.csv", sep="")
+pattern <- paste("irb*/HapticMarkExp*Block-*MarkCount-2*.csv", sep="")
+#calculate average error
 myFiles <- Sys.glob(pattern)
 
 plotMagnitude(direction)
 assessAccuracy(direction)
-
-pattern <- paste("HapticMarkExp*irb2*Block-3*.csv", sep="")
-myFiles <- Sys.glob(pattern)
-
-plotMagnitude(direction)
-assessAccuracy(direction)
-
-pattern <- paste("HapticMarkExp*irb3*Block-3*.csv", sep="")
-myFiles <- Sys.glob(pattern)
-
-plotMagnitude(direction)
-assessAccuracy(direction)
-
-pattern <- paste("HapticMarkExp*irb4*Block-3*.csv", sep="")
-myFiles <- Sys.glob(pattern)
-
-plotMagnitude(direction)
-assessAccuracy(direction)
-
-pattern <- paste("HapticMarkExp*irb5*Block-3*.csv", sep="")
-myFiles <- Sys.glob(pattern)
-
-plotMagnitude(direction)
-assessAccuracy(direction)
-
-pattern <- paste("HapticMarkExp*irb6*Block-3*.csv", sep="")
-myFiles <- Sys.glob(pattern)
-
-plotMagnitude(direction)
-assessAccuracy(direction)
-
 
 
 

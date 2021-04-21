@@ -3,23 +3,23 @@ library(crayon)
 library("plotrix")
 
 magnitudeThreshold <- 1#rd, erzhen's need 0.31, pilot studies 0.35
-yLim <- 3.5
-summaryLim <- 2.5
+yLim <- 1.2
+summaryLim <- 1.2
 factorInAbsValue <- FALSE
 
 calculateDirectionBasedErrorAngle <- function (angle, direction) {
-  if (direction == "n") {
-    angle <- 90 - angle
-  } else if (direction == "ne" || direction == "sw") {
+  if (direction == "ne" || direction == "sw") {
     angle <- 45 - abs(angle)
-  }else if (direction == "s") {
+  }else if (direction == "n") {
+    angle <- 90 - abs(angle)
+  } else if (direction == "s") {
     angle <- 0 - (abs(angle) - 90)
   } else if (direction == "w" || direction == "e") {
     angle <- 0 - angle
   } else if (direction == "se" || direction == "nw") {
     angle <- 0 - (45-abs(angle))
   }
-  #cat("\nERROR:",direction, angle)
+  cat("\nERROR;",direction, angle)
   return (angle)
 }
 
@@ -29,8 +29,6 @@ analyzeThresholdPoints <- function(mydata, direction) {
   secondPassPt <- mydata[max(which(magnitude >= magnitudeThreshold)),]
   peakPt <- mydata[which(magnitude == max(magnitude)),]
   firstPassAngle <- atan(firstPassPt$Fy/firstPassPt$Fx) * 180 / pi
-  #cat("\nfirstpass", firstPassAngle)
-  #look at the x, y values to determine which quadrant
   secondPassAngle <- atan(secondPassPt$Fy/secondPassPt$Fx) * 180 / pi
   peakPtAngle <- atan(peakPt$Fy/peakPt$Fx) * 180 / pi
   firstPassErrorAngle <- calculateDirectionBasedErrorAngle(firstPassAngle, direction)
@@ -41,8 +39,8 @@ analyzeThresholdPoints <- function(mydata, direction) {
 }
 
 plotForceVectorLine <- function(Fx, Fy, colorRandom) {
-  #par(new = TRUE)
- #plot(Fx, Fy, ylim=range(c(-yLim,yLim)),  xlim=c(-yLim,yLim), type="l", axes = FALSE, col = colorRandom)
+  par(new = TRUE)
+  plot(Fx, Fy, ylim=range(c(-yLim,yLim)),  xlim=c(-yLim,yLim), type="l", axes = FALSE, xlab = "", ylab = "", col = colorRandom)
 }
 
 clipBasedOnDirection <- function(direction){
@@ -98,7 +96,8 @@ analyzeRegressionLine <- function(Fx, Fy, color) {
   abline(lm(Fy~Fx), col=color, lwd=2)
   slope <- coef(fit.lm)[2]
   regressionAngle <-  atan(slope) * 180 / pi
-  regressionErrorAngle <- calculateDirectionBasedErrorAngle(regressionAngle, direction)
+  regressionErrorAngle <- calculateDirectionBasedErrorAngle(regressionAngle, "")
+  cat("\nRegression angle:", atan(slope) * 180 / pi)
   newlist <- list(regressionErrorAngle, as.numeric(atan(slope) * 180 / pi))
   return (newlist)
 }
@@ -113,9 +112,8 @@ plotForceVector <- function(direction){
     fileCount <- fileCount + 1
     ds <- read.csv(filename)
     name <- basename(filename)
-    mydata <- ds[ds$Magnitude > 0.15,]
-    #mydata <- ds[1:min(which(ds$Magnitude >=1)),]
-    
+    mydata <- ds[ds$Magnitude > 0.20,]
+    mydata <- ds[1:min(which(ds$Magnitude >=1)),]
     Fx <- mydata$Fx
     Fy <- mydata$Fy
     magnitude <- mydata$Magnitude
@@ -126,6 +124,8 @@ plotForceVector <- function(direction){
     regAngles <- c(regAngles, as.numeric(regressionAngles[2]))
     h[direction] <- regressionErrorList
   }
+  print(regAngles)
+  cat("\nAverage regression error:", mean(regressionErrorList), "\n")
   regAnglesDir[direction] <- mean(regAngles)
 }
 
@@ -134,8 +134,8 @@ plotMagnitude <- function(direction) {
   fileCount <- 0
   for (filename in myFiles) {
     ds <- read.csv(filename)
-    mydata <- ds[ds$Magnitude > 0.2,]
-    #mydata <- ds[min(which(ds$Magnitude > 0.20)):min(which(ds$Magnitude >=1)),]
+    mydata <- ds[ds$Magnitude > 0.20,]
+    mydata <- ds[1:min(which(ds$Magnitude >=1)),]
     
     fileCount <- fileCount + 1
     timestamp <- mydata$Timestamp
@@ -160,18 +160,17 @@ plotMagnitude <- function(direction) {
     secondPassAnglesDir[direction] <- mean(secondPassAngles)
     peakPtAnglesDir[direction] <- mean(peakPtAngles)
     magnitudeAverage[direction] <- mean(magnitudeToAvg)
-
+    
     colorRandom <- getRandomColor(FALSE)
-    # if (first) {
-    #   plot(timestamp, magnitude, main=paste("Magnitude", toupper(direction)), ylim=c(0, yLim), xlim=c(0,1500), xlab="ms", ylab="N", type="l",  col=colorRandom)
-    #   abline(magnitudeThreshold, 0, col="brown", lwd=2)
-    #   first <- FALSE
-    # } else {
-    #   par(new = TRUE)
-    #   plot(timestamp, magnitude, ylim=c(0, yLim), xlim=c(0,1500), xaxt ='n', type="l", xlab="", ylab="", axes= FALSE, col=colorRandom )
-    # }
+    if (first) {
+      plot(timestamp, magnitude, main=paste("Magnitude", toupper(direction)), ylim=c(0, yLim), xlab="ms", ylab="N", type="l",  col=colorRandom)
+      abline(magnitudeThreshold, 0, col="brown", lwd=2)
+      first <- FALSE
+    } else {
+      par(new = TRUE)
+      plot(timestamp, magnitude, ylim=c(0, yLim), xlab="", ylab="", xaxt='n', type="l", axes= FALSE, col=colorRandom )
+    }
     if (fileCount == length(myFiles)) {
-      firstPassErrors[direction] <- mean(firstThresholdPassErrorList);
       cat("\nAverage threshold first pass error:", mean(firstThresholdPassErrorList), "\n")
       cat("Average threshold second pass error:", mean(secondThresholdPassErrorList), "\n")
       cat("Average peak point error:", mean(peakPointErrorList), "\n")
@@ -193,7 +192,7 @@ getRandomColor <- function(opaque){
   if (opaque == TRUE) {
     opacity <- 1
   }
-  return(rgb(runif(1, 0.5, 1), runif(1, 0.2, 1), runif(1, 0.3, 1), opacity))
+  return(rgb(runif(1, 0.5, 1.0), runif(1, 0.2, 1.0), runif(1, 0.3, 1.0), opacity))
 }
 
 drawGuideLines <- function(direction) {
@@ -225,7 +224,7 @@ calcByAbsMode <- function(errorAngle, pos) {
 directions <- list("n", "ne", "e", "se", "s", "sw", "w", "nw")
 par(mfcol=c(4,6))
 par(pty="s")
-par(mar=c(4,0,4,0))
+par(mar=c(2,1,2,1))
 h <- hash() 
 h1 <- hash() 
 h2 <- hash() 
@@ -239,19 +238,19 @@ secondPassAnglesDir <- hash()
 peakPtAnglesDir <- hash()
 regAnglesDir <- hash()
 magnitudeAverage <- hash()
-firstPassErrors <- hash()
-bpYLim <- 65 #box plot y-limit
+bpYLim <- 50 #box plot y-limit
 
 for (direction in directions) {
   cat(blue("\nDirection: ", toupper(direction)))
-  pattern <- paste("irb*/cleaned/*DirectionDiscrimination*_*Block-*_Trial-*-*_" , direction , "-*.csv", sep="")
-  myFiles <- Sys.glob(pattern) 
+  pattern <- paste("DirectionDiscrimination*_" , direction , "-*.csv", sep="")
+  myFiles <- Sys.glob(pattern)
   regressionErrorList <- c()
   firstThresholdPassErrorList <- c()
   secondThresholdPassErrorList <- c()
   peakPointErrorList <- c()
   firstPassAngles <- c()
   secondPassAngles <- c()
+  peakPtAngles <- c()
   regAngles <- c()
   
   plotForceVector(direction)
@@ -261,19 +260,20 @@ for (direction in directions) {
 print(firstPassAnglesDir)
 print(secondPassAnglesDir)
 print(peakPtAnglesDir)
+print(regAnglesDir)
 print(magnitudeAverage)
 
-# boxplot(h[["n"]], h[["ne"]], h[["e"]], h[["se"]], h[["s"]], h[["sw"]], h[["w"]], h[["nw"]],
-#         main = "Regression° (+) Error",
-#         names = c("N", "NE", "E", "SE", "S", "SW", "W", "NW"),
-#         las = 3,
-#         cex.axis=0.75,
-#         col = c("orange","red"),
-#         border = "brown",
-#         horizontal = FALSE,
-#         notch = FALSE,
-#         ylim = c(-bpYLim, bpYLim)
-# )
+boxplot(h[["n"]], h[["ne"]], h[["e"]], h[["se"]], h[["s"]], h[["sw"]], h[["w"]], h[["nw"]],
+        main = "Regression° (+) Error",
+        names = c("N", "NE", "E", "SE", "S", "SW", "W", "NW"),
+        las = 3,
+        cex.axis=0.75,
+        col = c("orange","red"),
+        border = "brown",
+        horizontal = FALSE,
+        notch = FALSE,
+        ylim = c(-bpYLim, bpYLim)
+)
 
 boxplot(h1[["n"]], h1[["ne"]], h1[["e"]], h1[["se"]], h1[["s"]], h1[["sw"]], h1[["w"]], h1[["nw"]],
         main = "1st T-Pass° (+) Error",
@@ -284,8 +284,7 @@ boxplot(h1[["n"]], h1[["ne"]], h1[["e"]], h1[["se"]], h1[["s"]], h1[["sw"]], h1[
         border = "brown",
         horizontal = FALSE,
         notch = FALSE,
-        ylim = c(-bpYLim, bpYLim),
-        ylab = "deg(°)"
+        ylim = c(-bpYLim, bpYLim)
 )
 
 
@@ -315,7 +314,7 @@ boxplot(h3[["n"]], h3[["ne"]], h3[["e"]], h3[["se"]], h3[["s"]], h3[["sw"]], h3[
 )
 
 
-plot(0, 0, main="Summary", xlim=c(-summaryLim,summaryLim), ylim=c(-summaryLim, summaryLim),xlab="N", ylab="N", )
+plot(0, 0, main="Summary", xlim=c(-summaryLim,summaryLim), ylim=c(-summaryLim, summaryLim))
 abline(0, 0, col="grey")
 abline(v=0, col="grey")
 blueCol <- rgb(red = 0, green = 0, blue = 1, alpha = 0.4)
@@ -330,16 +329,8 @@ for (direction in directions) {
   #}
   mag <- magnitudeAverage[[direction]]
   angle <- firstPassAnglesDir[[direction]]
-  errorAngle <- firstPassErrors[[direction]]
   x <- mag * cos(angle * pi / 180)
   y <- mag * sin(angle * pi / 180)
-  
-  if (errorAngle < 0) {
-    if (direction == "n") {
-      x <- 0 - x
-    }
-  }
-  
   if (direction == "n" || direction == "nw" || direction == "ne") {
     if (y < 0 ) {
       y <- 0 - y
@@ -365,24 +356,18 @@ for (direction in directions) {
     if (x > 0) {
       x <- 0 - x
     }
-    if (errorAngle < 0) {
-      y <- 0 - y
-    }
+    y <- 0 - y
   }
   
   if (direction == "e") {
-    if (errorAngle > 0) {
-      y <- 0 - y
-    }
+    y <- 0 - y
   }
   
   if (direction == "s") {
-    if (errorAngle > 0) {
-      x <- 0 - x
-    }
+    x <- 0 - x
   }
   
-  cat("\n", direction, "error angle: ", errorAngle, ",avg magnitude:", mag, "avg angle:", angle, "(x,y):", x, y)
+  cat("\n", direction, " avg magnitude:", mag, "avg angle:", angle, "(x,y):", x, y)
   par(new = TRUE)
   colorRandom <- getRandomColor(TRUE)
   points(x, y, col = colorRandom, pch=19, cex = 1, lty = "solid", lwd = 1, text(x, y, paste(direction), cex=0.95,pos=3))

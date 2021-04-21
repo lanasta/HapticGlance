@@ -35,7 +35,6 @@ analyzeThresholdPoints <- function(mydata, direction, speed) {
   secondPassErrorAngle <- calculateDirectionBasedErrorAngle(secondPassAngle, direction)
   peakPtErrorAngle <- calculateDirectionBasedErrorAngle(peakPtAngle, direction)
   newlist <- list(firstPassErrorAngle, secondPassErrorAngle, peakPtErrorAngle, firstPassAngle, secondPassAngle, peakPtAngle)
-  cat("\n(error,speed)", firstPassErrorAngle, speed)
   return (newlist)
 }
 
@@ -164,6 +163,7 @@ plotMagnitude <- function(direction) {
     secondPassAnglesDir[direction] <- mean(secondPassAngles)
     peakPtAnglesDir[direction] <- mean(peakPtAngles)
     magnitudeAverage[direction] <- mean(magnitudeToAvg)
+    averageSpeedsDir[direction] <- mean(averageSpeed)
     
     if (first) {
       plot(-1, -1, main=paste("Error vs Speed", toupper(direction)), xlab="error", ylab="speed", xlim=c(0,40), ylim=c(0, 15))
@@ -173,6 +173,7 @@ plotMagnitude <- function(direction) {
       points(abs(as.numeric(errorAnglesList[1])), speed, col = colorRandom, pch=19, cex = 1, lty = "solid", lwd = 1)
     }
     
+
     colorRandom <- getRandomColor(FALSE)
     # if (first) {  
     #   plot(timestamp, magnitude, main=paste("Magnitude", toupper(direction)), ylim=c(0, yLim), xlab="ms", ylab="N", type="l",  col=colorRandom)
@@ -189,6 +190,9 @@ plotMagnitude <- function(direction) {
       cat("Average peak point error:", mean(peakPointErrorList), "\n")
       cat("Average speed:", mean(averageSpeed), "\n")
     }
+    
+    cat("\nAverage speed for ", direction, ": ", mean(averageSpeed), "\n")
+    
   }
 }
 
@@ -253,6 +257,8 @@ peakPtAnglesDir <- hash()
 regAnglesDir <- hash()
 magnitudeAverage <- hash()
 firstPassErrors <- hash()
+averageSpeedsDir <- hash()
+
 bpYLim <- 50 #box plot y-limit
 
 for (direction in directions) {
@@ -272,13 +278,6 @@ for (direction in directions) {
   plotForceVector(direction)
   plotMagnitude(direction)
 }
-
-print(firstPassAnglesDir)
-print(secondPassAnglesDir)
-print(peakPtAnglesDir)
-print(regAnglesDir)
-print(magnitudeAverage)
-
 
 
 plot(0, 0, main="Summary", xlim=c(-summaryLim,summaryLim), ylim=c(-summaryLim, summaryLim))
@@ -341,7 +340,7 @@ for (direction in directions) {
     }
   }
   
-  cat("\n", direction, "error angle: ", errorAngle, ",avg magnitude:", mag, "avg angle:", angle, "(x,y):", x, y)
+  cat("\n", direction, "error angle: ", errorAngle, ",avg magnitude:", mag, "avg angle:", angle, "(x,y):", x, y, ", avg speeds: ", averageSpeedsDir[[direction]])
   par(new = TRUE)
   colorRandom <- getRandomColor(TRUE)
   points(x, y, col = colorRandom, pch=19, cex = 1, lty = "solid", lwd = 1, text(x, y, paste(direction), cex=0.95,pos=3))
